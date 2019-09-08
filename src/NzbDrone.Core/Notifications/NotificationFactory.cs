@@ -9,6 +9,7 @@ namespace NzbDrone.Core.Notifications
 {
     public interface INotificationFactory : IProviderFactory<INotification, NotificationDefinition>
     {
+        List<INotification> OnAvailableEnabled();
         List<INotification> OnGrabEnabled();
         List<INotification> OnDownloadEnabled();
         List<INotification> OnUpgradeEnabled();
@@ -20,6 +21,11 @@ namespace NzbDrone.Core.Notifications
         public NotificationFactory(INotificationRepository providerRepository, IEnumerable<INotification> providers, IContainer container, IEventAggregator eventAggregator, Logger logger)
             : base(providerRepository, providers, container, eventAggregator, logger)
         {
+        }
+
+        public List<INotification> OnAvailableEnabled()
+        {
+            return GetAvailableProviders().Where(n => ((NotificationDefinition)n.Definition).OnGrab).ToList();
         }
 
         public List<INotification> OnGrabEnabled()

@@ -13,7 +13,8 @@ using NzbDrone.Core.Movies;
 namespace NzbDrone.Core.Notifications
 {
     public class NotificationService
-        : IHandle<MovieRenamedEvent>, 
+        : IHandle<MovieAvailableEvent>,
+          IHandle<MovieRenamedEvent>,
           IHandle<MovieGrabbedEvent>,
           IHandle<MovieDownloadedEvent>
 
@@ -63,6 +64,32 @@ namespace NzbDrone.Core.Notifications
             //TODO: this message could be more clear
             _logger.Debug("{0} does not have any tags that match {1}'s tags", notificationDefinition.Name, movie.Title);
             return false;
+        }
+
+        public void Handle(MovieAvailableEvent message)
+        {
+            var availableMessage = new AvailableMessage
+            {
+                Message = GetMessage(message.Movie.Movie, message.Movie.ParsedMovieInfo.Quality),
+                Quality = message.Movie.ParsedMovieInfo.Quality,
+                Movie = message.Movie.Movie,
+                RemoteMovie = message.Movie,
+                DownloadClient = message.DownloadClient
+            };
+
+            foreach (var notification in _notificationFactory.OnAvailableEnabled())
+            {
+                try
+                {
+                    if (!ShouldHandleMovie(notification.Definition, message.Movie.Movie)) continue;
+                    notification.OnAvailable(availableMessage);
+                }
+
+                catch (Exception ex)
+                {
+                    _logger.Error(ex, "Unable to send OnAvailable notification to: " + notification.Definition.Name);
+                }
+            }
         }
 
         public void Handle(MovieGrabbedEvent message)

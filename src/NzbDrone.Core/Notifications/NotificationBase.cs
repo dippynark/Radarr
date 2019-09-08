@@ -24,10 +24,12 @@ namespace NzbDrone.Core.Notifications
 
         public abstract string Link { get; }
 
+        public virtual void OnAvailable(AvailableMessage availableMessage) {}
         public abstract void OnGrab(GrabMessage grabMessage);
         public abstract void OnDownload(DownloadMessage message); 
         public abstract void OnMovieRename(Movie movie);
 
+        public virtual bool SupportsOnAvailable => false;
         public virtual bool SupportsOnGrab => true;
         public virtual bool SupportsOnDownload => true;
         public virtual bool SupportsOnUpgrade => true;

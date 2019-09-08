@@ -16,6 +16,13 @@ namespace NzbDrone.Core.Notifications.PushBullet
 
         public override string Link => "https://www.pushbullet.com/";
 
+        public override void OnAvailable(AvailableMessage availableMessage)
+        {
+            const string title = "Radarr - Movie Available";
+
+            _proxy.SendNotification(title, availableMessage.Message, Settings);
+        }
+
         public override void OnGrab(GrabMessage grabMessage)
         {
             const string title = "Radarr - Movie Grabbed";
@@ -36,6 +43,7 @@ namespace NzbDrone.Core.Notifications.PushBullet
 
         public override string Name => "Pushbullet";
 
+        public override bool SupportsOnAvailable => true;
         public override bool SupportsOnRename => false;
 
         public override ValidationResult Test()

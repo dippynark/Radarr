@@ -14,6 +14,7 @@ namespace NzbDrone.Core.Download
     public interface IDownloadService
     {
         void DownloadReport(RemoteMovie remoteMovie, bool forceDownload);
+        void DownloadAvailable(RemoteMovie remoteMovie);
     }
 
     public class DownloadService : IDownloadService
@@ -92,6 +93,16 @@ namespace NzbDrone.Core.Download
 
             _logger.ProgressInfo("Report sent to {0}. {1}", downloadClient.Definition.Name, downloadTitle);
             _eventAggregator.PublishEvent(movieGrabbedEvent);
+        }
+
+        public void DownloadAvailable(RemoteMovie remoteMovie) {
+            var downloadTitle = remoteMovie.Release.Title;
+            var downloadClient = _downloadClientProvider.GetDownloadClient(remoteMovie.Release.DownloadProtocol);
+
+            var movieAvailableEvent = new MovieAvailableEvent(remoteMovie);
+            movieAvailableEvent.DownloadClient = downloadClient.GetType().Name;
+            _logger.ProgressInfo("Movie available from {0}. {1}", downloadClient.Definition.Name, downloadTitle);
+            _eventAggregator.PublishEvent(movieAvailableEvent);
         }
     }
 }
