@@ -44,18 +44,18 @@ if [ $runtime = "dotnet" ] ; then
   ./7za.exe a -ttar -so Radarr_OSX_App_$VERSION.tar ./_output_osx_app/* | ./7za.exe a -si Radarr_OSX_App_$VERSION.tar.gz
 else
   cp -r $outputFolder/ Radarr
-  zip -r Radarr.$BRANCH.$VERSION.windows.zip Radarr
+  #zip -r Radarr.$BRANCH.$VERSION.windows.zip Radarr
   rm -rf Radarr
   cp -r $outputFolderMono/ Radarr
-  tar -zcvf Radarr.$BRANCH.$VERSION.linux.tar.gz Radarr
+  tar -zcvf Radarr.$BRANCH.linux.tar.gz Radarr
   rm -rf Radarr
   cp -r $outputFolderOsx/ Radarr
-  tar -zcvf Radarr.$BRANCH.$VERSION.osx.tar.gz Radarr
+  #tar -zcvf Radarr.$BRANCH.$VERSION.osx.tar.gz Radarr
   rm -rf Radarr
   #TODO update for tar.gz
 
   cd _output_osx_app/
-  zip -r ../Radarr.$BRANCH.$VERSION.osx-app.zip *
+  #zip -r ../Radarr.$BRANCH.$VERSION.osx-app.zip *
 fi
 # ftp -n ftp.leonardogalli.ch << END_SCRIPT
 # passive
