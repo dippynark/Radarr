@@ -218,7 +218,7 @@ PackageTests()
     rm -rf $testPackageFolder
     mkdir $testPackageFolder
 
-    find $sourceFolder -path $testSearchPattern -exec cp -r -u -T "{}" $testPackageFolder \;
+    find $sourceFolder -path $testSearchPattern -exec cp -r "{}" $testPackageFolder \;
 
     if [ $runtime = "dotnet" ] ; then
         $nuget install NUnit.Runners -Version 3.9.0 -Output $testPackageFolder
