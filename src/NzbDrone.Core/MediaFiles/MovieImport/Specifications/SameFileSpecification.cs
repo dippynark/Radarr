@@ -17,20 +17,6 @@ namespace NzbDrone.Core.MediaFiles.MovieImport.Specifications
 
         public Decision IsSatisfiedBy(LocalMovie localMovie, DownloadClientItem downloadClientItem)
         {
-            var movieFile = localMovie.Movie.MovieFile;
-
-            if (localMovie.Movie.MovieFileId == 0 || movieFile == null)
-            {
-                _logger.Debug("No existing movie file, skipping");
-                return Decision.Accept();
-            }
-
-            if (movieFile.Size == localMovie.Size)
-            {
-                _logger.Debug("'{0}' Has the same filesize as existing file", localMovie.Path);
-                return Decision.Reject("Has the same filesize as existing file");
-            }
-
             return Decision.Accept();
         }
     }
