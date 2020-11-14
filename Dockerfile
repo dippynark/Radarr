@@ -18,13 +18,12 @@ RUN install -o root -g root -m 644 packages.microsoft.gpg /etc/apt/trusted.gpg.d
 RUN sh -c 'echo "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/packages.microsoft.gpg] https://packages.microsoft.com/repos/vscode stable main" > /etc/apt/sources.list.d/vscode.list'
 RUN apt-get update && apt-get install -y code
 
-# TODO: install debian instead of ubunutu
-# https://docs.microsoft.com/en-us/dotnet/core/install/linux-ubuntu#install-the-sdk
-RUN wget https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+# https://docs.microsoft.com/en-gb/dotnet/core/install/linux-debian
+RUN wget https://packages.microsoft.com/config/debian/10/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
 RUN dpkg -i packages-microsoft-prod.deb
 RUN apt-get update && apt-get install -y dotnet-sdk-3.1
 
-# https://classic.yarnpkg.com/en/docs/install/#mac-stable
+# https://classic.yarnpkg.com/en/docs/install
 RUN cd /opt && \
   wget https://github.com/yarnpkg/yarn/releases/download/v1.22.10/yarn-v1.22.10.tar.gz && \
   tar zvxf yarn-v1.22.10.tar.gz

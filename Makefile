@@ -7,6 +7,7 @@ build:
 	bash build.sh
 
 package:
+	rm -rf Radarr.linux.tar.gz Radarr
 	cp -r ./_artifacts/linux-x64/netcoreapp3.1/Radarr Radarr
 	tar -zcvf Radarr.linux.tar.gz ./Radarr/*
 
