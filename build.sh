@@ -369,19 +369,19 @@ then
 
     if [[ -z "$RID" || -z "$FRAMEWORK" ]];
     then
-        Package "net5.0" "win-x64"
-        Package "net5.0" "win-x86"
+        # Package "net5.0" "win-x64"
+        # Package "net5.0" "win-x86"
         Package "net5.0" "linux-x64"
-        Package "net5.0" "linux-musl-x64"
-        Package "net5.0" "linux-arm64"
-        Package "net5.0" "linux-musl-arm64"
-        Package "net5.0" "linux-arm"
-        Package "net5.0" "osx-x64"
-        Package "net472" "linux-x64"
-        if [ "$ENABLE_BSD" = "YES" ];
-        then
-            Package "net5.0" "freebsd-x64"
-        fi
+        # Package "net5.0" "linux-musl-x64"
+        # Package "net5.0" "linux-arm64"
+        # Package "net5.0" "linux-musl-arm64"
+        # Package "net5.0" "linux-arm"
+        # Package "net5.0" "osx-x64"
+        # Package "net472" "linux-x64"
+        # if [ "$ENABLE_BSD" = "YES" ];
+        # then
+        #     Package "net5.0" "freebsd-x64"
+        # fi
     else
         Package "$FRAMEWORK" "$RID"
     fi
