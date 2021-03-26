@@ -21,7 +21,7 @@ RUN apt-get update && apt-get install -y code
 # https://docs.microsoft.com/en-gb/dotnet/core/install/linux-debian
 RUN wget https://packages.microsoft.com/config/debian/10/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
 RUN dpkg -i packages-microsoft-prod.deb
-RUN apt-get update && apt-get install -y dotnet-sdk-3.1
+RUN apt-get update && apt-get install -y dotnet-sdk-5.0
 
 # https://classic.yarnpkg.com/en/docs/install
 RUN cd /opt && \
@@ -30,7 +30,3 @@ RUN cd /opt && \
 ENV PATH=/opt/yarn-v1.22.10/bin:$PATH
 
 WORKDIR /workspace
-
-RUN git clone https://github.com/Radarr/Radarr && \
-  cd Radarr && \
-  yarn install

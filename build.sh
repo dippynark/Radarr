@@ -330,21 +330,21 @@ then
         EnableBsdSupport
     fi
     Build
-    if [[ -z "$RID" || -z "$FRAMEWORK" ]];
-    then
-        PackageTests "net5.0" "win-x64"
-        PackageTests "net5.0" "win-x86"
-        PackageTests "net5.0" "linux-x64"
-        PackageTests "net5.0" "linux-musl-x64"
-        PackageTests "net5.0" "osx-x64"
-        PackageTests "net472" "linux-x64"
-        if [ "$ENABLE_BSD" = "YES" ];
-        then
-            PackageTests "net5.0" "freebsd-x64"
-        fi
-    else
-        PackageTests "$FRAMEWORK" "$RID"
-    fi
+    # if [[ -z "$RID" || -z "$FRAMEWORK" ]];
+    # then
+    #     PackageTests "net5.0" "win-x64"
+    #     PackageTests "net5.0" "win-x86"
+    #     PackageTests "net5.0" "linux-x64"
+    #     PackageTests "net5.0" "linux-musl-x64"
+    #     PackageTests "net5.0" "osx-x64"
+    #     PackageTests "net472" "linux-x64"
+    #     if [ "$ENABLE_BSD" = "YES" ];
+    #     then
+    #         PackageTests "net5.0" "freebsd-x64"
+    #     fi
+    # else
+    #     PackageTests "$FRAMEWORK" "$RID"
+    # fi
 fi
 
 if [ "$FRONTEND" = "YES" ];
