@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Dapper;
 using FluentMigrator;
 using NzbDrone.Core.Datastore.Migration.Framework;
@@ -19,7 +20,7 @@ namespace NzbDrone.Core.Datastore.Migration
             _serializerSettings = new JsonSerializerOptions
             {
                 AllowTrailingCommas = true,
-                IgnoreNullValues = false,
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
                 PropertyNameCaseInsensitive = true,
                 DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -59,6 +60,15 @@ namespace NzbDrone.Core.Datastore.Migration
 
             Execute.WithConnection(FixLanguagesMoveFile);
             Execute.WithConnection(FixLanguagesHistory);
+
+            //Force refresh all movies in library
+            Update.Table("ScheduledTasks")
+                .Set(new { LastExecution = "2014-01-01 00:00:00" })
+                .Where(new { TypeName = "NzbDrone.Core.Movies.Commands.RefreshMovieCommand" });
+
+            Update.Table("Movies")
+                .Set(new { LastInfoSync = "2014-01-01 00:00:00" })
+                .AllRows();
         }
 
         private void FixLanguagesMoveFile(IDbConnection conn, IDbTransaction tran)

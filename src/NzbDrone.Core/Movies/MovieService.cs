@@ -31,8 +31,9 @@ namespace NzbDrone.Core.Movies
         List<Movie> FindByTitleCandidates(string title, out string roman, out string arabic);
         Movie FindByTitleSlug(string slug);
         Movie FindByPath(string path);
-        List<string> AllMoviePaths();
+        Dictionary<int, string> AllMoviePaths();
         List<int> AllMovieTmdbIds();
+        Dictionary<int, string> AllMovieTitleSlugs();
         bool MovieExists(Movie movie);
         List<Movie> GetMoviesByFileId(int fileId);
         List<Movie> GetMoviesBetweenDates(DateTime start, DateTime end, bool includeUnmonitored);
@@ -41,7 +42,7 @@ namespace NzbDrone.Core.Movies
         void DeleteMovie(int movieId, bool deleteFiles, bool addExclusion = false);
         void DeleteMovies(List<int> movieIds, bool deleteFiles, bool addExclusion = false);
         List<Movie> GetAllMovies();
-        List<Movie> AllForTag(int tagId);
+        Dictionary<int, List<int>> AllMovieTags();
         Movie UpdateMovie(Movie movie);
         List<Movie> UpdateMovie(List<Movie> movie, bool useExistingRelativeFolder);
         List<Movie> FilterExistingMovies(List<Movie> movies);
@@ -189,9 +190,14 @@ namespace NzbDrone.Core.Movies
             return _movieRepository.FindByPath(path);
         }
 
-        public List<string> AllMoviePaths()
+        public Dictionary<int, string> AllMoviePaths()
         {
             return _movieRepository.AllMoviePaths();
+        }
+
+        public Dictionary<int, string> AllMovieTitleSlugs()
+        {
+            return _movieRepository.AllMovieTitleSlugs();
         }
 
         public List<int> AllMovieTmdbIds()
@@ -227,10 +233,9 @@ namespace NzbDrone.Core.Movies
             return _movieRepository.All().ToList();
         }
 
-        public List<Movie> AllForTag(int tagId)
+        public Dictionary<int, List<int>> AllMovieTags()
         {
-            return GetAllMovies().Where(s => s.Tags.Contains(tagId))
-                                 .ToList();
+            return _movieRepository.AllMovieTags();
         }
 
         public Movie UpdateMovie(Movie movie)
@@ -281,7 +286,7 @@ namespace NzbDrone.Core.Movies
         public void SetFileId(Movie movie, MovieFile movieFile)
         {
             _movieRepository.SetFileId(movieFile.Id, movie.Id);
-            _logger.Info("Linking [{0}] > [{1}]", movieFile.RelativePath, movie);
+            _logger.Info("Assigning file [{0}] to movie [{1}]", movieFile.RelativePath, movie);
         }
 
         public List<Movie> GetMoviesByFileId(int fileId)
@@ -381,7 +386,7 @@ namespace NzbDrone.Core.Movies
             _movieRepository.Update(movie);
 
             //_movieRepository.SetFileId(message.MovieFile.Id, message.MovieFile.Movie.Value.Id);
-            _logger.Info("Linking [{0}] > [{1}]", message.MovieFile.RelativePath, message.MovieFile.Movie);
+            _logger.Info("Assigning file [{0}] to movie [{1}]", message.MovieFile.RelativePath, message.MovieFile.Movie);
         }
 
         public void Handle(MovieFileDeletedEvent message)

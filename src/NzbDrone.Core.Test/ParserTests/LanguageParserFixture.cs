@@ -148,12 +148,39 @@ namespace NzbDrone.Core.Test.ParserTests
             result.Languages.Should().BeEquivalentTo(Language.Bulgarian);
         }
 
+        [TestCase("Pulp.Fiction.1994.Dublado.1080p.XviD-LOL")]
+        [TestCase("Uma.Aventura.Lego.2.2019.1080p.Bluray.Dublado.WWW.TPF.GRATIS")]
+        public void should_parse_language_brazilian_portuguese(string postTitle)
+        {
+            var result = Parser.Parser.ParseMovieTitle(postTitle, true);
+
+            result.Languages.Should().BeEquivalentTo(Language.PortugueseBR);
+        }
+
         [TestCase("Pulp.Fiction.1994.Polish.1080p.XviD-LOL")]
+        [TestCase("Pulp.Fiction.1994.PL.1080p.XviD-LOL")]
+        [TestCase("Pulp.Fiction.1994.PLDUB.1080p.XviD-LOL")]
+        [TestCase("Pulp.Fiction.1994.DUBPL.1080p.XviD-LOL")]
+        [TestCase("Pulp.Fiction.1994.PL-DUB.1080p.XviD-LOL")]
+        [TestCase("Pulp.Fiction.1994.DUB-PL.1080p.XviD-LOL")]
+        [TestCase("Pulp.Fiction.1994.PLLEK.1080p.XviD-LOL")]
+        [TestCase("Pulp.Fiction.1994.LEKPL.1080p.XviD-LOL")]
+        [TestCase("Pulp.Fiction.1994.PL-LEK.1080p.XviD-LOL")]
         public void should_parse_language_polish(string postTitle)
         {
             var result = Parser.Parser.ParseMovieTitle(postTitle, true);
 
             result.Languages.Should().BeEquivalentTo(Language.Polish);
+        }
+
+        [TestCase("Pulp.Fiction.1994.PL-SUB.1080p.XviD-LOL")]
+        [TestCase("Pulp.Fiction.1994.PLSUB.1080p.XviD-LOL")]
+        [TestCase("Pulp.Fiction.1994.SUB-PL.1080p.XviD-LOL")]
+        public void should_parse_language_polish_subbed(string postTitle)
+        {
+            var result = Parser.Parser.ParseMovieTitle(postTitle, true);
+
+            result.Languages.Should().BeEquivalentTo(Language.Unknown);
         }
 
         [TestCase("Pulp.Fiction.1994.Vietnamese.1080p.XviD-LOL")]
@@ -258,6 +285,13 @@ namespace NzbDrone.Core.Test.ParserTests
             var result = Parser.Parser.ParseMovieTitle(postTitle, true);
 
             result.Languages.Should().BeEquivalentTo(Language.Czech);
+        }
+
+        [TestCase("Mosul.2019.ARABIC.WEBRip.x264-VXT")]
+        public void should_parse_language_arabic(string postTitle)
+        {
+            var result = Parser.Parser.ParseMovieTitle(postTitle);
+            result.Languages.Should().BeEquivalentTo(Language.Arabic);
         }
 
         [TestCase("Pulp Fiction.en.sub")]

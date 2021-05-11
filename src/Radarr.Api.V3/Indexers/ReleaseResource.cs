@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 using NzbDrone.Core.DecisionEngine;
 using NzbDrone.Core.Indexers;
 using NzbDrone.Core.Languages;
@@ -35,6 +35,7 @@ namespace Radarr.Api.V3.Indexers
         public bool Approved { get; set; }
         public bool TemporarilyRejected { get; set; }
         public bool Rejected { get; set; }
+        public int TmdbId { get; set; }
         public int ImdbId { get; set; }
         public IEnumerable<string> Rejections { get; set; }
         public DateTime PublishDate { get; set; }
@@ -44,6 +45,7 @@ namespace Radarr.Api.V3.Indexers
         public bool DownloadAllowed { get; set; }
         public int ReleaseWeight { get; set; }
         public IEnumerable<string> IndexerFlags { get; set; }
+        public string Edition { get; set; }
 
         public string MagnetUrl { get; set; }
         public string InfoHash { get; set; }
@@ -52,7 +54,7 @@ namespace Radarr.Api.V3.Indexers
         public DownloadProtocol Protocol { get; set; }
 
         // Sent when queuing an unknown release
-        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public int? MovieId { get; set; }
     }
 
@@ -89,6 +91,7 @@ namespace Radarr.Api.V3.Indexers
                 Approved = model.Approved,
                 TemporarilyRejected = model.TemporarilyRejected,
                 Rejected = model.Rejected,
+                TmdbId = releaseInfo.TmdbId,
                 ImdbId = releaseInfo.ImdbId,
                 Rejections = model.Rejections.Select(r => r.Reason).ToList(),
                 PublishDate = releaseInfo.PublishDate,
@@ -96,6 +99,7 @@ namespace Radarr.Api.V3.Indexers
                 DownloadUrl = releaseInfo.DownloadUrl,
                 InfoUrl = releaseInfo.InfoUrl,
                 DownloadAllowed = remoteMovie.DownloadAllowed,
+                Edition = parsedMovieInfo.Edition,
 
                 //ReleaseWeight
                 MagnetUrl = torrentInfo.MagnetUrl,
@@ -135,6 +139,7 @@ namespace Radarr.Api.V3.Indexers
             model.IndexerId = resource.IndexerId;
             model.Indexer = resource.Indexer;
             model.DownloadProtocol = resource.Protocol;
+            model.TmdbId = resource.TmdbId;
             model.ImdbId = resource.ImdbId;
             model.PublishDate = resource.PublishDate.ToUniversalTime();
 

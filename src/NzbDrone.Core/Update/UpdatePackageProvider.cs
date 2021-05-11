@@ -11,7 +11,7 @@ namespace NzbDrone.Core.Update
     public interface IUpdatePackageProvider
     {
         UpdatePackage GetLatestUpdate(string branch, Version currentVersion);
-        List<UpdatePackage> GetRecentUpdates(string branch, Version currentVersion);
+        List<UpdatePackage> GetRecentUpdates(string branch, Version currentVersion, Version previousVersion = null);
     }
 
     public class UpdatePackageProvider : IUpdatePackageProvider
@@ -56,14 +56,21 @@ namespace NzbDrone.Core.Update
             return update.UpdatePackage;
         }
 
-        public List<UpdatePackage> GetRecentUpdates(string branch, Version currentVersion)
+        public List<UpdatePackage> GetRecentUpdates(string branch, Version currentVersion, Version previousVersion)
         {
             var request = _requestBuilder.Create()
                                          .Resource("/update/{branch}/changes")
                                          .AddQueryParam("version", currentVersion)
                                          .AddQueryParam("os", OsInfo.Os.ToString().ToLowerInvariant())
+                                         .AddQueryParam("arch", RuntimeInformation.OSArchitecture)
+                                         .AddQueryParam("runtime", PlatformInfo.Platform.ToString().ToLowerInvariant())
                                          .AddQueryParam("runtimeVer", _platformInfo.Version)
                                          .SetSegment("branch", branch);
+
+            if (previousVersion != null && previousVersion != currentVersion)
+            {
+                request.AddQueryParam("prevVersion", previousVersion);
+            }
 
             if (_analyticsService.IsEnabled)
             {

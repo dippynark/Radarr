@@ -95,9 +95,10 @@ namespace Radarr.Host
                     }
                 })
                 .ConfigureKestrel(serverOptions =>
-                    {
-                        serverOptions.AllowSynchronousIO = true;
-                    })
+                {
+                    serverOptions.AllowSynchronousIO = true;
+                    serverOptions.Limits.MaxRequestBodySize = null;
+                })
                 .ConfigureLogging(logging =>
                 {
                     logging.AddProvider(new NLogLoggerProvider());
@@ -113,9 +114,9 @@ namespace Radarr.Host
                         options.PayloadSerializerSettings = Json.GetSerializerSettings();
                     });
 #else
-                    .AddNewtonsoftJsonProtocol(options =>
+                    .AddJsonProtocol(options =>
                     {
-                        options.PayloadSerializerSettings = Json.GetSerializerSettings();
+                        options.PayloadSerializerOptions = STJson.GetSerializerSettings();
                     });
 #endif
 

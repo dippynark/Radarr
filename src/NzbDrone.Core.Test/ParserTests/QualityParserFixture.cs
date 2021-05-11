@@ -86,6 +86,7 @@ namespace NzbDrone.Core.Test.ParserTests
         [TestCase("Glee.S04E10.Glee.Actually.480p.WEB-DL.x264-mSD", false)]
         [TestCase("The.Big.Bang.Theory.S06E11.The.Santa.Simulation.480p.WEB-DL.x264-mSD", false)]
         [TestCase("Da.Vincis.Demons.S02E04.480p.WEB.DL.nSD.x264-NhaNc3", false)]
+        [TestCase("[HorribleSubs] Movie Title! 2018 [Web][MKV][h264][480p][AAC 2.0][Softsubs (HorribleSubs)]", false)]
         public void should_parse_webdl480p_quality(string title, bool proper)
         {
             ParseAndVerifyQuality(title, Source.WEBDL, proper, Resolution.R480p);
@@ -145,6 +146,8 @@ namespace NzbDrone.Core.Test.ParserTests
         [TestCase("The.Nightly.Show.2016.03.14.720p.WEB.x264-spamTV", false)]
         [TestCase("The.Nightly.Show.2016.03.14.720p.WEB.h264-spamTV", false)]
         [TestCase("BrainDead.S01E01.The.Insanity.Principle.720p.WEB-DL.DD5.1.H.264-BD", false)]
+        [TestCase("[HorribleSubs] Movie Title! 2018 [Web][MKV][h264][720p][AAC 2.0][Softsubs (HorribleSubs)]", false)]
+        [TestCase("[HorribleSubs] Movie Title! 2018 [Web][MKV][h264][AAC 2.0][Softsubs (HorribleSubs)]", false)]
         public void should_parse_webdl720p_quality(string title, bool proper)
         {
             ParseAndVerifyQuality(title, Source.WEBDL, proper, Resolution.R720p);
@@ -177,6 +180,7 @@ namespace NzbDrone.Core.Test.ParserTests
         [TestCase("Legacies.2020.1080p.AMZN.WEB...", false)]
         [TestCase("Legacies.2020.1080p.AMZN.WEB.", false)]
         [TestCase("Movie Title - 2020 1080p Viva MKV WEB", false)]
+        [TestCase("[HorribleSubs] Movie Title! 2018 [Web][MKV][h264][1080p][AAC 2.0][Softsubs (HorribleSubs)]", false)]
         public void should_parse_webdl1080p_quality(string title, bool proper)
         {
             ParseAndVerifyQuality(title, Source.WEBDL, proper, Resolution.R1080p);
@@ -184,6 +188,7 @@ namespace NzbDrone.Core.Test.ParserTests
 
         [TestCase("Arrested.Development.S04E01.iNTERNAL.1080p.WEBRip.x264-QRUS", false)]
         [TestCase("Series.Title.1x04.ITA.1080p.WEBMux.x264-NovaRip", false)]
+        [TestCase("The.Mandalorian.2019.S02E07.Chapter.15.The.Believer.4Kto1080p.DSNYP.Webrip.x265.10bit.EAC3.5.1.Atmos.GokiTAoE", false)]
         public void should_parse_webrip1080p_quality(string title, bool proper)
         {
             ParseAndVerifyQuality(title, Source.WEBRIP, proper, Resolution.R1080p);
@@ -192,6 +197,7 @@ namespace NzbDrone.Core.Test.ParserTests
         [TestCase("The.Nightly.Show.2016.03.14.2160p.WEB.x264-spamTV", false)]
         [TestCase("The.Nightly.Show.2016.03.14.2160p.WEB.h264-spamTV", false)]
         [TestCase("The.Nightly.Show.2016.03.14.2160p.WEB.PROPER.h264-spamTV", true)]
+        [TestCase("[HorribleSubs] Movie Title! 2018 [Web][MKV][h264][2160p][AAC 2.0][Softsubs (HorribleSubs)]", false)]
         public void should_parse_webdl2160p_quality(string title, bool proper)
         {
             ParseAndVerifyQuality(title, Source.WEBDL, proper, Resolution.R2160p);
@@ -240,9 +246,27 @@ namespace NzbDrone.Core.Test.ParserTests
         [TestCase("John.Carpenter.Live.Retrospective.2016.2018.1080p.MBluRay.x264-CRUELTY.mkv", false)]
         [TestCase("Heart.Live.In.Atlantic.City.2019.1080p.MBLURAY.x264-MBLURAYFANS.mkv", false)]
         [TestCase("Opeth.Garden.Of.The.Titans.Live.At.Red.Rocks.Amphitheatre.2017.1080p.MBluRay.x264-TREBLE.mkv", false)]
+        [TestCase("Rise.Of.The.Planet.Of.The.Apes.2011.UHD.BluRay.DD5.1.HDR.x265-CtrlHD/ctrlhd-rotpota-1080p.mkv", false)]
+        [TestCase("V for Vendetta 2005 1080p UHD BluRay DD+7.1 x264-LoRD.mkv", false)]
+        [TestCase("Rise.Of.The.Planet.Of.The.Apes.2011.1080p.UHD.BluRay.DD5.1.HDR.x265-CtrlHD.mkv", false)]
         public void should_parse_bluray1080p_quality(string title, bool proper)
         {
             ParseAndVerifyQuality(title, Source.BLURAY, proper, Resolution.R1080p);
+        }
+
+        [TestCase("Revolution.S01E02.Chained.Heat.[Bluray2160p].mkv", false)]
+        [TestCase("[FFF] Namiuchigiwa no Muromi-san - 10 [BD][2160p-FLAC][0C4091AF]", false)]
+        [TestCase("[coldhell] Pupa v2 [BD2160p][5A45EABE].mkv", false)]
+        [TestCase("[Kaylith] Isshuukan Friends Specials - 01 [BD 2160p FLAC][429FD8C7].mkv", false)]
+        [TestCase("[Zurako] Log Horizon - 01 - The Apocalypse (BD 2160p AAC) [7AE12174].mkv", false)]
+        [TestCase("WEEDS.S03E01-06.DUAL.2160p.Blu-ray.AC3.-HELLYWOOD.avi", false)]
+        [TestCase("[Coalgirls]_Durarara!!_01_(3840x2160_Blu-ray_FLAC)_[8370CB8F].mkv", false)]
+        [TestCase("John.Carpenter.Live.Retrospective.2016.2018.2160p.MBluRay.x264-CRUELTY.mkv", false)]
+        [TestCase("Heart.Live.In.Atlantic.City.2019.2160p.MBLURAY.x264-MBLURAYFANS.mkv", false)]
+        [TestCase("Opeth.Garden.Of.The.Titans.Live.At.Red.Rocks.Amphitheatre.2017.2160p.MBluRay.x264-TREBLE.mkv", false)]
+        public void should_parse_bluray2160p_quality(string title, bool proper)
+        {
+            ParseAndVerifyQuality(title, Source.BLURAY, proper, Resolution.R2160p);
         }
 
         [TestCase("Movie.Name.2004.576p.BDRip.x264-HANDJOB")]
@@ -266,6 +290,7 @@ namespace NzbDrone.Core.Test.ParserTests
         [TestCase("27.Dresses.2008.REMUX.2160p.Bluray.AVC.DTS-HR.MA.5.1-LEGi0N")]
         [TestCase("The.Shining.1980.2160p.UHD.BluRay.Remux.HDR.HEVC.DTS-HD.MA.5.1-PmP.mkv")]
         [TestCase("Stranger.Things.2016.T1.UHDRemux.2160p.HEVC.Dual.AC3.5.1-TrueHD.5.1.Sub")]
+        [TestCase("[Dolby Vision] Game.of.Thrones.S07.MULTi.UHD.BLURAY.REMUX.DV-NoTag")]
         public void should_parse_remux2160p_quality(string title)
         {
             ParseAndVerifyQuality(title, Source.BLURAY, false, Resolution.R2160p, Modifier.REMUX);

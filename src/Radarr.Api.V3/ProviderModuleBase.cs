@@ -14,7 +14,7 @@ namespace Radarr.Api.V3
     public abstract class ProviderModuleBase<TProviderResource, TProvider, TProviderDefinition> : RadarrRestModule<TProviderResource>
         where TProviderDefinition : ProviderDefinition, new()
         where TProvider : IProvider
-        where TProviderResource : ProviderResource, new()
+        where TProviderResource : ProviderResource<TProviderResource>, new()
     {
         private readonly IProviderFactory<TProvider, TProviderDefinition> _providerFactory;
         private readonly ProviderResourceMapper<TProviderResource, TProviderDefinition> _resourceMapper;
@@ -28,7 +28,7 @@ namespace Radarr.Api.V3
             Get("schema", x => GetTemplates());
             Post("test", x => Test(ReadResourceFromRequest(true)));
             Post("testall", x => TestAll());
-            Post("action/{action}", x => RequestAction(x.action, ReadResourceFromRequest(true)));
+            Post("action/{action}", x => RequestAction(x.action, ReadResourceFromRequest(true, true)));
 
             GetResourceAll = GetAll;
             GetResourceById = GetProviderById;
@@ -124,12 +124,9 @@ namespace Radarr.Api.V3
                 var providerResource = _resourceMapper.ToResource(providerDefinition);
                 var presetDefinitions = _providerFactory.GetPresetDefinitions(providerDefinition);
 
-                providerResource.Presets = presetDefinitions.Select(v =>
-                {
-                    var presetResource = _resourceMapper.ToResource(v);
-
-                    return presetResource as ProviderResource;
-                }).ToList();
+                providerResource.Presets = presetDefinitions
+                    .Select(v => _resourceMapper.ToResource(v))
+                    .ToList();
 
                 result.Add(providerResource);
             }

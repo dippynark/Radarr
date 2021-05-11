@@ -102,9 +102,9 @@ class NamingModal extends Component {
     ];
 
     const caseOptions = [
-      { key: 'title', value: 'Default Case' },
-      { key: 'lower', value: 'Lower Case' },
-      { key: 'upper', value: 'Upper Case' }
+      { key: 'title', value: translate('DefaultCase') },
+      { key: 'lower', value: translate('LowerCase') },
+      { key: 'upper', value: translate('UpperCase') }
     ];
 
     const fileNameTokens = [
@@ -139,7 +139,7 @@ class NamingModal extends Component {
     const mediaInfoTokens = [
       { token: '{MediaInfo Simple}', example: 'x264 DTS' },
       { token: '{MediaInfo Full}', example: 'x264 DTS [EN+DE]' },
-      { token: '{MediaInfo VideoCodec}', example: 'x264' },
+
       { token: '{MediaInfo AudioCodec}', example: 'DTS' },
       { token: '{MediaInfo AudioChannels}', example: '5.1' },
       { token: '{MediaInfo AudioLanguages}', example: '[EN+DE]' },
@@ -174,7 +174,7 @@ class NamingModal extends Component {
       >
         <ModalContent onModalClose={onModalClose}>
           <ModalHeader>
-            File Name Tokens
+            {translate('FileNameTokens')}
           </ModalHeader>
 
           <ModalBody>

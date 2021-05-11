@@ -17,6 +17,7 @@ using NzbDrone.Core.MediaFiles.MediaInfo;
 using NzbDrone.Core.Movies;
 using NzbDrone.Core.Movies.Credits;
 using NzbDrone.Core.Movies.Translations;
+using NzbDrone.Core.Tags;
 
 namespace NzbDrone.Core.Extras.Metadata.Consumers.Xbmc
 {
@@ -27,12 +28,14 @@ namespace NzbDrone.Core.Extras.Metadata.Consumers.Xbmc
         private readonly IDetectXbmcNfo _detectNfo;
         private readonly IDiskProvider _diskProvider;
         private readonly ICreditService _creditService;
+        private readonly ITagService _tagService;
         private readonly IMovieTranslationService _movieTranslationsService;
 
         public XbmcMetadata(IDetectXbmcNfo detectNfo,
                             IDiskProvider diskProvider,
                             IMapCoversToLocal mediaCoverService,
                             ICreditService creditService,
+                            ITagService tagService,
                             IMovieTranslationService movieTranslationsService,
                             Logger logger)
         {
@@ -41,6 +44,7 @@ namespace NzbDrone.Core.Extras.Metadata.Consumers.Xbmc
             _diskProvider = diskProvider;
             _detectNfo = detectNfo;
             _creditService = creditService;
+            _tagService = tagService;
             _movieTranslationsService = movieTranslationsService;
         }
 
@@ -126,6 +130,8 @@ namespace NzbDrone.Core.Extras.Metadata.Consumers.Xbmc
                 var selectedSettingsLanguage = Language.FindById(movieMetadataLanguage);
                 var movieTranslation = movieTranslations.FirstOrDefault(mt => mt.Language == selectedSettingsLanguage);
 
+                var credits = _creditService.GetAllCreditsForMovie(movie.Id);
+
                 var watched = GetExistingWatchedStatus(movie, movieFile.RelativePath);
 
                 var sb = new StringBuilder();
@@ -144,69 +150,38 @@ namespace NzbDrone.Core.Extras.Metadata.Consumers.Xbmc
 
                     details.Add(new XElement("title", movieTranslation?.Title ?? movie.Title));
 
+                    details.Add(new XElement("originaltitle", movie.OriginalTitle));
+
+                    details.Add(new XElement("sorttitle", movie.SortTitle));
+
+                    if (movie.Ratings != null && movie.Ratings.Votes > 0)
+                    {
+                        var setRating = new XElement("ratings");
+                        var setRatethemoviedb = new XElement("rating", new XAttribute("name", "themoviedb"), new XAttribute("max", "10"), new XAttribute("default", "true"));
+                        setRatethemoviedb.Add(new XElement("value", movie.Ratings.Value));
+                        setRatethemoviedb.Add(new XElement("votes", movie.Ratings.Votes));
+                        setRating.Add(setRatethemoviedb);
+                        details.Add(setRating);
+                    }
+
                     if (movie.Ratings != null && movie.Ratings.Votes > 0)
                     {
                         details.Add(new XElement("rating", movie.Ratings.Value));
                     }
 
+                    details.Add(new XElement("userrating"));
+
+                    details.Add(new XElement("top250"));
+
+                    details.Add(new XElement("outline"));
+
                     details.Add(new XElement("plot", movieTranslation?.Overview ?? movie.Overview));
-                    details.Add(new XElement("id", movie.ImdbId));
-                    details.Add(new XElement("tmdbid", movie.TmdbId));
 
-                    if (movie.ImdbId.IsNotNullOrWhiteSpace())
-                    {
-                        var imdbId = new XElement("uniqueid", movie.ImdbId);
-                        imdbId.SetAttributeValue("type", "imdb");
-                        imdbId.SetAttributeValue("default", true);
-                        details.Add(imdbId);
-                    }
+                    details.Add(new XElement("tagline"));
 
-                    var uniqueId = new XElement("uniqueid", movie.TmdbId);
-                    uniqueId.SetAttributeValue("type", "tmdb");
-                    details.Add(uniqueId);
+                    details.Add(new XElement("runtime", movie.Runtime));
 
-                    if (movie.Certification.IsNotNullOrWhiteSpace())
-                    {
-                        details.Add(new XElement("mpaa", movie.Certification));
-                    }
-
-                    details.Add(new XElement("year", movie.Year));
-
-                    if (movie.InCinemas.HasValue)
-                    {
-                        details.Add(new XElement("premiered", movie.InCinemas.Value.ToString("yyyy-MM-dd")));
-                    }
-
-                    if (movie.Collection?.Name != null)
-                    {
-                        var setElement = new XElement("set");
-
-                        setElement.Add(new XElement("name", movie.Collection.Name));
-
-                        details.Add(setElement);
-                    }
-
-                    if (movie.Collection?.TmdbId > 0)
-                    {
-                        details.Add(new XElement("tmdbCollectionId", movie.Collection.TmdbId));
-
-                        var uniqueSetId = new XElement("uniqueid", movie.Collection.TmdbId);
-                        uniqueSetId.SetAttributeValue("type", "tmdbSet");
-                        details.Add(uniqueSetId);
-                    }
-
-                    foreach (var genre in movie.Genres)
-                    {
-                        details.Add(new XElement("genre", genre));
-                    }
-
-                    details.Add(new XElement("studio", movie.Studio));
-
-                    if (thumbnail == null)
-                    {
-                        details.Add(new XElement("thumb"));
-                    }
-                    else
+                    if (thumbnail != null)
                     {
                         details.Add(new XElement("thumb", thumbnail.Url));
                     }
@@ -215,7 +190,7 @@ namespace NzbDrone.Core.Extras.Metadata.Consumers.Xbmc
                     {
                         if (poster != null && poster.Url != null)
                         {
-                            details.Add(new XElement("thumb", new XAttribute("aspect", "poster"), poster.Url));
+                            details.Add(new XElement("thumb", new XAttribute("aspect", "poster"), new XAttribute("preview", poster.Url), poster.Url));
                         }
                     }
 
@@ -226,14 +201,86 @@ namespace NzbDrone.Core.Extras.Metadata.Consumers.Xbmc
                         {
                             if (fanart != null && fanart.Url != null)
                             {
-                                fanartElement.Add(new XElement("thumb", fanart.Url));
+                                fanartElement.Add(new XElement("thumb", new XAttribute("preview", fanart.Url), fanart.Url));
                             }
                         }
 
                         details.Add(fanartElement);
                     }
 
-                    details.Add(new XElement("watched", watched));
+                    if (movie.Certification.IsNotNullOrWhiteSpace())
+                    {
+                        details.Add(new XElement("mpaa", movie.Certification));
+                    }
+
+                    details.Add(new XElement("playcount"));
+
+                    details.Add(new XElement("lastplayed"));
+
+                    details.Add(new XElement("id", movie.TmdbId));
+
+                    var uniqueId = new XElement("uniqueid", movie.TmdbId);
+                    uniqueId.SetAttributeValue("type", "tmdb");
+                    uniqueId.SetAttributeValue("default", true);
+                    details.Add(uniqueId);
+
+                    if (movie.ImdbId.IsNotNullOrWhiteSpace())
+                    {
+                        var imdbId = new XElement("uniqueid", movie.ImdbId);
+                        imdbId.SetAttributeValue("type", "imdb");
+                        details.Add(imdbId);
+                    }
+
+                    foreach (var genre in movie.Genres)
+                    {
+                        details.Add(new XElement("genre", genre));
+                    }
+
+                    details.Add(new XElement("country"));
+
+                    if (movie.Collection?.Name != null)
+                    {
+                        var setElement = new XElement("set");
+
+                        setElement.Add(new XElement("name", movie.Collection.Name));
+                        setElement.Add(new XElement("overview"));
+
+                        details.Add(setElement);
+                    }
+
+                    var tags = _tagService.GetTags(movie.Tags);
+
+                    foreach (var tag in tags)
+                    {
+                        details.Add(new XElement("tag", tag.Label));
+                    }
+
+                    foreach (var credit in credits)
+                    {
+                        if (credit.Name != null && credit.Job == "Screenplay")
+                        {
+                            details.Add(new XElement("credits", credit.Name));
+                        }
+                    }
+
+                    foreach (var credit in credits)
+                    {
+                        if (credit.Name != null && credit.Job == "Director")
+                        {
+                            details.Add(new XElement("director", credit.Name));
+                        }
+                    }
+
+                    if (movie.InCinemas.HasValue)
+                    {
+                        details.Add(new XElement("premiered", movie.InCinemas.Value.ToString("yyyy-MM-dd")));
+                    }
+
+                    details.Add(new XElement("year", movie.Year));
+
+                    details.Add(new XElement("studio", movie.Studio));
+
+                    details.Add(new XElement("trailer", "plugin://plugin.video.youtube/play/?video_id=" + movie.YouTubeTrailerId));
 
                     if (movieFile.MediaInfo != null)
                     {
@@ -251,7 +298,7 @@ namespace NzbDrone.Core.Extras.Metadata.Consumers.Xbmc
                         video.Add(new XElement("scantype", movieFile.MediaInfo.ScanType));
                         video.Add(new XElement("width", movieFile.MediaInfo.Width));
 
-                        if (movieFile.MediaInfo.RunTime != null)
+                        if (movieFile.MediaInfo.RunTime != default)
                         {
                             video.Add(new XElement("duration", movieFile.MediaInfo.RunTime.TotalMinutes));
                             video.Add(new XElement("durationinseconds", movieFile.MediaInfo.RunTime.TotalSeconds));
@@ -260,8 +307,9 @@ namespace NzbDrone.Core.Extras.Metadata.Consumers.Xbmc
                         streamDetails.Add(video);
 
                         var audio = new XElement("audio");
+                        var audioChannelCount = movieFile.MediaInfo.AudioChannelsStream > 0 ? movieFile.MediaInfo.AudioChannelsStream : movieFile.MediaInfo.AudioChannelsContainer;
                         audio.Add(new XElement("bitrate", movieFile.MediaInfo.AudioBitrate));
-                        audio.Add(new XElement("channels", movieFile.MediaInfo.AudioChannels));
+                        audio.Add(new XElement("channels", audioChannelCount));
                         audio.Add(new XElement("codec", MediaInfoFormatter.FormatAudioCodec(movieFile.MediaInfo, sceneName)));
                         audio.Add(new XElement("language", movieFile.MediaInfo.AudioLanguages));
                         streamDetails.Add(audio);
@@ -273,7 +321,8 @@ namespace NzbDrone.Core.Extras.Metadata.Consumers.Xbmc
                             streamDetails.Add(subtitle);
                         }
 
-                        var credits = _creditService.GetAllCreditsForMovie(movie.Id);
+                        fileInfo.Add(streamDetails);
+                        details.Add(fileInfo);
 
                         foreach (var credit in credits)
                         {
@@ -295,9 +344,6 @@ namespace NzbDrone.Core.Extras.Metadata.Consumers.Xbmc
                                 details.Add(actorElement);
                             }
                         }
-
-                        fileInfo.Add(streamDetails);
-                        details.Add(fileInfo);
                     }
 
                     doc.Add(details);

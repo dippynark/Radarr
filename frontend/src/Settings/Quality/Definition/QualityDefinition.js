@@ -14,6 +14,7 @@ import styles from './QualityDefinition.css';
 
 const MIN = 0;
 const MAX = 400;
+const MIN_DISTANCE = 1;
 
 const slider = {
   min: MIN,
@@ -152,10 +153,10 @@ class QualityDefinition extends Component {
     const minSixty = `${formatBytes(minBytes * 60)}/h`;
 
     const preferredBytes = preferredSize * 1024 * 1024;
-    const preferredSixty = preferredBytes ? `${formatBytes(preferredBytes * 60)}/h` : 'Unlimited';
+    const preferredSixty = preferredBytes ? `${formatBytes(preferredBytes * 60)}/h` : translate('Unlimited');
 
     const maxBytes = maxSize && maxSize * 1024 * 1024;
-    const maxSixty = maxBytes ? `${formatBytes(maxBytes * 60)}/h` : 'Unlimited';
+    const maxSixty = maxBytes ? `${formatBytes(maxBytes * 60)}/h` : translate('Unlimited');
 
     return (
       <div className={styles.qualityDefinition}>
@@ -176,7 +177,7 @@ class QualityDefinition extends Component {
             min={slider.min}
             max={slider.max}
             step={slider.step}
-            minDistance={3}
+            minDistance={MIN_DISTANCE * 3}
             value={[sliderMinSize, sliderPreferredSize, sliderMaxSize]}
             withTracks={true}
             allowCross={false}
@@ -243,14 +244,14 @@ class QualityDefinition extends Component {
           advancedSettings &&
             <div className={styles.megabytesPerMinute}>
               <div>
-                Min
+                {translate('Min')}
 
                 <NumberInput
                   className={styles.sizeInput}
                   name={`${id}.min`}
                   value={minSize || MIN}
                   min={MIN}
-                  max={preferredSize ? preferredSize - 5 : MAX - 5}
+                  max={preferredSize ? preferredSize - MIN_DISTANCE : MAX - MIN_DISTANCE}
                   step={0.1}
                   isFloat={true}
                   onChange={this.onMinSizeChange}
@@ -258,14 +259,14 @@ class QualityDefinition extends Component {
               </div>
 
               <div>
-                Preferred
+                {translate('Preferred')}
 
                 <NumberInput
                   className={styles.sizeInput}
                   name={`${id}.min`}
-                  value={preferredSize || MAX - 5}
+                  value={preferredSize || MAX - MIN_DISTANCE}
                   min={MIN}
-                  max={maxSize ? maxSize - 5 : MAX - 5}
+                  max={maxSize ? maxSize - MIN_DISTANCE : MAX - MIN_DISTANCE}
                   step={0.1}
                   isFloat={true}
                   onChange={this.onPreferredSizeChange}
@@ -273,13 +274,13 @@ class QualityDefinition extends Component {
               </div>
 
               <div>
-                Max
+                {translate('Max')}
 
                 <NumberInput
                   className={styles.sizeInput}
-                  name={`${id}.min`}
+                  name={`${id}.max`}
                   value={maxSize || MAX}
-                  min={minSize + 5}
+                  min={minSize + MIN_DISTANCE}
                   max={MAX}
                   step={0.1}
                   isFloat={true}

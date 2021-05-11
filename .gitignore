@@ -190,3 +190,7 @@ packages.config.md5sum
 # ignore node_modules symlink
 node_modules
 node_modules.nosync
+
+# Custom
+/Radarr/
+/Radarr.linux.tar.gz

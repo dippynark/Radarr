@@ -59,13 +59,17 @@ class Notification extends Component {
       onDownload,
       onUpgrade,
       onRename,
-      onDelete,
+      onMovieDelete,
+      onMovieFileDelete,
+      onMovieFileDeleteForUpgrade,
       onHealthIssue,
       supportsOnGrab,
       supportsOnDownload,
       supportsOnUpgrade,
       supportsOnRename,
-      supportsOnDelete,
+      supportsOnMovieDelete,
+      supportsOnMovieFileDelete,
+      supportsOnMovieFileDeleteForUpgrade,
       supportsOnHealthIssue
     } = this.props;
 
@@ -80,55 +84,78 @@ class Notification extends Component {
         </div>
 
         {
-          supportsOnGrab && onGrab &&
+          supportsOnGrab && onGrab ?
             <Label kind={kinds.SUCCESS}>
-              On Grab
-            </Label>
+              {translate('OnGrab')}
+            </Label> :
+            null
         }
 
         {
-          supportsOnDelete && onDelete &&
+          supportsOnDownload && onDownload ?
             <Label kind={kinds.SUCCESS}>
-              On Delete
-            </Label>
+              {translate('OnImport')}
+            </Label> :
+            null
         }
 
         {
-          supportsOnDownload && onDownload &&
+          supportsOnUpgrade && onDownload && onUpgrade ?
             <Label kind={kinds.SUCCESS}>
-              On Import
-            </Label>
+              {translate('OnUpgrade')}
+            </Label> :
+            null
         }
 
         {
-          supportsOnUpgrade && onDownload && onUpgrade &&
+          supportsOnRename && onRename ?
             <Label kind={kinds.SUCCESS}>
-              On Upgrade
-            </Label>
+              {translate('OnRename')}
+            </Label> :
+            null
         }
 
         {
-          supportsOnRename && onRename &&
+          supportsOnHealthIssue && onHealthIssue ?
             <Label kind={kinds.SUCCESS}>
-              On Rename
-            </Label>
+              {translate('OnHealthIssue')}
+            </Label> :
+            null
         }
 
         {
-          supportsOnHealthIssue && onHealthIssue &&
+          supportsOnMovieDelete && onMovieDelete ?
             <Label kind={kinds.SUCCESS}>
-              On Health Issue
-            </Label>
+              {translate('OnMovieDelete')}
+            </Label> :
+            null
         }
 
         {
-          !onGrab && !onDownload && !onRename && !onHealthIssue && !onDelete &&
+          supportsOnMovieFileDelete && onMovieFileDelete ?
+            <Label kind={kinds.SUCCESS}>
+              {translate('OnMovieFileDelete')}
+            </Label> :
+            null
+        }
+
+        {
+          supportsOnMovieFileDeleteForUpgrade && onMovieFileDelete && onMovieFileDeleteForUpgrade ?
+            <Label kind={kinds.SUCCESS}>
+              {translate('OnMovieFileDeleteForUpgrade')}
+            </Label> :
+            null
+        }
+
+        {
+          !onGrab && !onDownload && !onRename && !onHealthIssue && !onMovieDelete && !onMovieFileDelete ?
             <Label
               kind={kinds.DISABLED}
               outline={true}
             >
-              Disabled
-            </Label>
+              {translate('Disabled')}
+            </Label> :
+            null
         }
 
         <EditNotificationModalConnector
@@ -159,11 +186,15 @@ Notification.propTypes = {
   onDownload: PropTypes.bool.isRequired,
   onUpgrade: PropTypes.bool.isRequired,
   onRename: PropTypes.bool.isRequired,
-  onDelete: PropTypes.bool.isRequired,
+  onMovieDelete: PropTypes.bool.isRequired,
+  onMovieFileDelete: PropTypes.bool.isRequired,
+  onMovieFileDeleteForUpgrade: PropTypes.bool.isRequired,
   onHealthIssue: PropTypes.bool.isRequired,
   supportsOnGrab: PropTypes.bool.isRequired,
   supportsOnDownload: PropTypes.bool.isRequired,
-  supportsOnDelete: PropTypes.bool.isRequired,
+  supportsOnMovieDelete: PropTypes.bool.isRequired,
+  supportsOnMovieFileDelete: PropTypes.bool.isRequired,
+  supportsOnMovieFileDeleteForUpgrade: PropTypes.bool.isRequired,
   supportsOnUpgrade: PropTypes.bool.isRequired,
   supportsOnRename: PropTypes.bool.isRequired,
   supportsOnHealthIssue: PropTypes.bool.isRequired,

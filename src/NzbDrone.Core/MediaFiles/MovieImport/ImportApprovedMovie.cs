@@ -128,7 +128,7 @@ namespace NzbDrone.Core.MediaFiles.MovieImport
                         movieFile.RelativePath = localMovie.Movie.Path.GetRelativePath(movieFile.Path);
                     }
 
-                    _mediaFileService.Add(movieFile);
+                    movieFile = _mediaFileService.Add(movieFile);
                     importResults.Add(new ImportResult(importDecision));
 
                     if (newDownload)
@@ -229,6 +229,12 @@ namespace NzbDrone.Core.MediaFiles.MovieImport
             if (sceneNameFile != null)
             {
                 return sceneNameFile;
+            }
+
+            var folderTitle = localMovie.FolderMovieInfo?.ReleaseTitle;
+            if (folderTitle.IsNotNullOrWhiteSpace() && SceneChecker.IsSceneTitle(folderTitle))
+            {
+                return folderTitle;
             }
 
             return null;

@@ -60,6 +60,10 @@ namespace NzbDrone.Core.Test.Download
             Mocker.GetMock<IHistoryService>()
                   .Setup(s => s.FindByDownloadId(It.IsAny<string>()))
                   .Returns(new List<MovieHistory>());
+
+            Mocker.GetMock<IProvideImportItemService>()
+                  .Setup(s => s.ProvideImportItem(It.IsAny<DownloadClientItem>(), It.IsAny<DownloadClientItem>()))
+                  .Returns<DownloadClientItem, DownloadClientItem>((i, p) => i);
         }
 
         private RemoteMovie BuildRemoteMovie()

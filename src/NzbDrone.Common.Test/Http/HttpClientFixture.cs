@@ -191,6 +191,28 @@ namespace NzbDrone.Common.Test.Http
         }
 
         [Test]
+        public void should_not_throw_on_suppressed_status_codes()
+        {
+            var request = new HttpRequest($"https://{_httpBinHost}/status/{HttpStatusCode.NotFound}");
+            request.SuppressHttpErrorStatusCodes = new[] { HttpStatusCode.NotFound };
+
+            Assert.Throws<HttpException>(() => Subject.Get<HttpBinResource>(request));
+
+            ExceptionVerification.IgnoreWarns();
+        }
+
+        [Test]
+        public void should_not_log_unsuccessful_status_codes()
+        {
+            var request = new HttpRequest($"https://{_httpBinHost}/status/{HttpStatusCode.NotFound}");
+            request.LogHttpError = false;
+
+            Assert.Throws<HttpException>(() => Subject.Get<HttpBinResource>(request));
+
+            ExceptionVerification.ExpectedWarns(0);
+        }
+
+        [Test]
         public void should_not_follow_redirects_when_not_in_production()
         {
             var request = new HttpRequest($"https://{_httpBinHost}/redirect/1");
@@ -294,7 +316,7 @@ namespace NzbDrone.Common.Test.Http
 
             var fileInfo = new FileInfo(file);
             fileInfo.Exists.Should().BeTrue();
-            fileInfo.Length.Should().Be(251536);
+            fileInfo.Length.Should().Be(270964);
         }
 
         [Test]
@@ -312,7 +334,7 @@ namespace NzbDrone.Common.Test.Http
 
             var fileInfo = new FileInfo(file);
             fileInfo.Exists.Should().BeTrue();
-            fileInfo.Length.Should().Be(251536);
+            fileInfo.Length.Should().Be(270964);
         }
 
         [Test]

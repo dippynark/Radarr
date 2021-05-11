@@ -98,11 +98,11 @@ namespace NzbDrone.Core.MediaFiles
                 {
                     if (_configService.DeleteEmptyFolders)
                     {
-                        _logger.Debug("Not creating missing movie folder: {0} because delete empty series folders is enabled", movie.Path);
+                        _logger.Debug("Not creating missing movie folder: {0} because delete empty movie folders is enabled", movie.Path);
                     }
                     else
                     {
-                        _logger.Debug("Creating missing series folder: {0}", movie.Path);
+                        _logger.Debug("Creating missing movie folder: {0}", movie.Path);
 
                         _diskProvider.CreateFolder(movie.Path);
                         SetPermissions(movie.Path);
@@ -110,7 +110,7 @@ namespace NzbDrone.Core.MediaFiles
                 }
                 else
                 {
-                    _logger.Debug("Movies folder doesn't exist: {0}", movie.Path);
+                    _logger.Debug("Movie's folder doesn't exist: {0}", movie.Path);
                 }
 
                 CleanMediaFiles(movie, new List<string>());
@@ -205,8 +205,7 @@ namespace NzbDrone.Core.MediaFiles
 
             try
             {
-                var permissions = _configService.FileChmod;
-                _diskProvider.SetPermissions(path, permissions);
+                _diskProvider.SetPermissions(path, _configService.ChmodFolder, _configService.ChownGroup);
             }
             catch (Exception ex)
             {

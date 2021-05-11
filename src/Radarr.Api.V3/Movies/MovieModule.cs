@@ -1,9 +1,11 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
 using Nancy;
+using NLog;
 using NzbDrone.Common.Extensions;
 using NzbDrone.Core.Configuration;
 using NzbDrone.Core.Datastore.Events;
@@ -42,6 +44,7 @@ namespace Radarr.Api.V3.Movies
         private readonly IManageCommandQueue _commandQueueManager;
         private readonly IUpgradableSpecification _qualityUpgradableSpecification;
         private readonly IConfigService _configService;
+        private readonly Logger _logger;
 
         public MovieModule(IBroadcastSignalRMessage signalRBroadcaster,
                            IMovieService moviesService,
@@ -56,9 +59,11 @@ namespace Radarr.Api.V3.Movies
                            MoviePathValidator moviesPathValidator,
                            MovieExistsValidator moviesExistsValidator,
                            MovieAncestorValidator moviesAncestorValidator,
+                           RecycleBinValidator recycleBinValidator,
                            SystemFolderValidator systemFolderValidator,
                            ProfileExistsValidator profileExistsValidator,
-                           MovieFolderAsRootFolderValidator movieFolderAsRootFolderValidator)
+                           MovieFolderAsRootFolderValidator movieFolderAsRootFolderValidator,
+                           Logger logger)
             : base(signalRBroadcaster)
         {
             _moviesService = moviesService;
@@ -68,6 +73,7 @@ namespace Radarr.Api.V3.Movies
             _configService = configService;
             _coverMapper = coverMapper;
             _commandQueueManager = commandQueueManager;
+            _logger = logger;
 
             GetResourceAll = AllMovie;
             GetResourceById = GetMovie;
@@ -84,6 +90,7 @@ namespace Radarr.Api.V3.Movies
                            .SetValidator(mappedNetworkDriveValidator)
                            .SetValidator(moviesPathValidator)
                            .SetValidator(moviesAncestorValidator)
+                           .SetValidator(recycleBinValidator)
                            .SetValidator(systemFolderValidator)
                            .When(s => !s.Path.IsNullOrWhiteSpace());
 
@@ -119,11 +126,14 @@ namespace Radarr.Api.V3.Movies
             else
             {
                 var configLanguage = (Language)_configService.MovieInfoLanguage;
+                var availDelay = _configService.AvailabilityDelay;
+
                 var movieTask = Task.Run(() => _moviesService.GetAllMovies());
 
                 var translations = _movieTranslationService
-                    .GetAllTranslationsForLanguage(configLanguage)
-                    .ToDictionary(x => x.MovieId);
+                    .GetAllTranslationsForLanguage(configLanguage);
+
+                var tdict = translations.ToDictionary(x => x.MovieId);
 
                 coverFileInfos = _coverMapper.GetCoverFileInfos();
 
@@ -133,11 +143,11 @@ namespace Radarr.Api.V3.Movies
 
                 foreach (var movie in movies)
                 {
-                    var translation = GetTranslationFromDict(translations, movie, configLanguage);
-                    var resource = movie.ToResource(_qualityUpgradableSpecification, translation);
-                    _coverMapper.ConvertToLocalUrls(resource.Id, resource.Images, coverFileInfos);
-                    moviesResources.Add(resource);
+                    var translation = GetTranslationFromDict(tdict, movie, configLanguage);
+                    moviesResources.Add(movie.ToResource(availDelay, translation, _qualityUpgradableSpecification));
                 }
+
+                MapCoversToLocal(moviesResources, coverFileInfos);
             }
 
             return moviesResources;
@@ -156,10 +166,12 @@ namespace Radarr.Api.V3.Movies
                 return null;
             }
 
+            var availDelay = _configService.AvailabilityDelay;
+
             var translations = _movieTranslationService.GetAllTranslationsForMovie(movie.Id);
             var translation = GetMovieTranslation(translations, movie, (Language)_configService.MovieInfoLanguage);
 
-            var resource = movie.ToResource(_qualityUpgradableSpecification, translation);
+            var resource = movie.ToResource(availDelay, translation, _qualityUpgradableSpecification);
             MapCoversToLocal(resource);
 
             return resource;
@@ -223,10 +235,12 @@ namespace Radarr.Api.V3.Movies
             var model = moviesResource.ToModel(movie);
 
             var updatedMovie = _moviesService.UpdateMovie(model);
+            var availDelay = _configService.AvailabilityDelay;
+
             var translations = _movieTranslationService.GetAllTranslationsForMovie(movie.Id);
             var translation = GetMovieTranslation(translations, movie, (Language)_configService.MovieInfoLanguage);
 
-            BroadcastResourceChange(ModelAction.Updated, updatedMovie.ToResource(_qualityUpgradableSpecification, translation));
+            BroadcastResourceChange(ModelAction.Updated, updatedMovie.ToResource(availDelay, translation, _qualityUpgradableSpecification));
         }
 
         private void DeleteMovie(int id)
@@ -242,11 +256,17 @@ namespace Radarr.Api.V3.Movies
             _coverMapper.ConvertToLocalUrls(movie.Id, movie.Images);
         }
 
+        private void MapCoversToLocal(IEnumerable<MovieResource> movies, Dictionary<string, FileInfo> coverFileInfos)
+        {
+            _coverMapper.ConvertToLocalUrls(movies.Select(x => Tuple.Create(x.Id, x.Images.AsEnumerable())), coverFileInfos);
+        }
+
         public void Handle(MovieImportedEvent message)
         {
+            var availDelay = _configService.AvailabilityDelay;
             var translations = _movieTranslationService.GetAllTranslationsForMovie(message.ImportedMovie.Movie.Id);
             var translation = GetMovieTranslation(translations, message.ImportedMovie.Movie, (Language)_configService.MovieInfoLanguage);
-            BroadcastResourceChange(ModelAction.Updated, message.ImportedMovie.Movie.ToResource(_qualityUpgradableSpecification, translation));
+            BroadcastResourceChange(ModelAction.Updated, message.ImportedMovie.Movie.ToResource(availDelay, translation, _qualityUpgradableSpecification));
         }
 
         public void Handle(MovieFileDeletedEvent message)
@@ -261,16 +281,18 @@ namespace Radarr.Api.V3.Movies
 
         public void Handle(MovieUpdatedEvent message)
         {
+            var availDelay = _configService.AvailabilityDelay;
             var translations = _movieTranslationService.GetAllTranslationsForMovie(message.Movie.Id);
             var translation = GetMovieTranslation(translations, message.Movie, (Language)_configService.MovieInfoLanguage);
-            BroadcastResourceChange(ModelAction.Updated, message.Movie.ToResource(_qualityUpgradableSpecification, translation));
+            BroadcastResourceChange(ModelAction.Updated, message.Movie.ToResource(availDelay, translation, _qualityUpgradableSpecification));
         }
 
         public void Handle(MovieEditedEvent message)
         {
+            var availDelay = _configService.AvailabilityDelay;
             var translations = _movieTranslationService.GetAllTranslationsForMovie(message.Movie.Id);
             var translation = GetMovieTranslation(translations, message.Movie, (Language)_configService.MovieInfoLanguage);
-            BroadcastResourceChange(ModelAction.Updated, message.Movie.ToResource(_qualityUpgradableSpecification, translation));
+            BroadcastResourceChange(ModelAction.Updated, message.Movie.ToResource(availDelay, translation, _qualityUpgradableSpecification));
         }
 
         public void Handle(MoviesDeletedEvent message)
@@ -283,9 +305,10 @@ namespace Radarr.Api.V3.Movies
 
         public void Handle(MovieRenamedEvent message)
         {
+            var availDelay = _configService.AvailabilityDelay;
             var translations = _movieTranslationService.GetAllTranslationsForMovie(message.Movie.Id);
             var translation = GetMovieTranslation(translations, message.Movie, (Language)_configService.MovieInfoLanguage);
-            BroadcastResourceChange(ModelAction.Updated, message.Movie.ToResource(_qualityUpgradableSpecification, translation));
+            BroadcastResourceChange(ModelAction.Updated, message.Movie.ToResource(availDelay, translation, _qualityUpgradableSpecification));
         }
 
         public void Handle(MediaCoversUpdatedEvent message)

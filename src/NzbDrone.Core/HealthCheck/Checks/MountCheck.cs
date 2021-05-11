@@ -22,14 +22,14 @@ namespace NzbDrone.Core.HealthCheck.Checks
         {
             // Not best for optimization but due to possible symlinks and junctions, we get mounts based on series path so internals can handle mount resolution.
             var mounts = _movieService.AllMoviePaths()
-                                      .Select(p => _diskProvider.GetMount(p))
+                                      .Select(p => _diskProvider.GetMount(p.Value))
                                       .Where(m => m != null && m.MountOptions != null && m.MountOptions.IsReadOnly)
                                       .DistinctBy(m => m.RootDirectory)
                                       .ToList();
 
             if (mounts.Any())
             {
-                return new HealthCheck(GetType(), HealthCheckResult.Error, _localizationService.GetLocalizedString("MountCheckMessage") + string.Join(", ", mounts.Select(m => m.Name)), "#movie-mount-ro");
+                return new HealthCheck(GetType(), HealthCheckResult.Error, _localizationService.GetLocalizedString("MountCheckMessage") + string.Join(", ", mounts.Select(m => m.Name)), "#movie_mount_ro");
             }
 
             return new HealthCheck(GetType());

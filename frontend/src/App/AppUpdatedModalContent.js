@@ -11,9 +11,47 @@ import UpdateChanges from 'System/Updates/UpdateChanges';
 import translate from 'Utilities/String/translate';
 import styles from './AppUpdatedModalContent.css';
 
+function mergeUpdates(items, version, prevVersion) {
+  let installedIndex = items.findIndex((u) => u.version === version);
+  let installedPreviouslyIndex = items.findIndex((u) => u.version === prevVersion);
+
+  if (installedIndex === -1) {
+    installedIndex = 0;
+  }
+
+  if (installedPreviouslyIndex === -1) {
+    installedPreviouslyIndex = items.length;
+  } else if (installedPreviouslyIndex === installedIndex && items.length) {
+    installedPreviouslyIndex += 1;
+  }
+
+  const appliedUpdates = items.slice(installedIndex, installedPreviouslyIndex);
+
+  if (!appliedUpdates.length) {
+    return null;
+  }
+
+  const appliedChanges = { new: [], fixed: [] };
+  appliedUpdates.forEach((u) => {
+    if (u.changes) {
+      appliedChanges.new.push(... u.changes.new);
+      appliedChanges.fixed.push(... u.changes.fixed);
+    }
+  });
+
+  const mergedUpdate = Object.assign({}, appliedUpdates[0], { changes: appliedChanges });
+
+  if (!appliedChanges.new.length && !appliedChanges.fixed.length) {
+    mergedUpdate.changes = null;
+  }
+
+  return mergedUpdate;
+}
+
 function AppUpdatedModalContent(props) {
   const {
     version,
+    prevVersion,
     isPopulated,
     error,
     items,
@@ -21,32 +59,32 @@ function AppUpdatedModalContent(props) {
     onModalClose
   } = props;
 
-  const update = items[0];
+  const update = mergeUpdates(items, version, prevVersion);
 
   return (
     <ModalContent onModalClose={onModalClose}>
       <ModalHeader>
-        Radarr Updated
+        {translate('RadarrUpdated')}
       </ModalHeader>
 
       <ModalBody>
-        <div>
-          Version <span className={styles.version}>{version}</span> of Radarr has been installed, in order to get the latest changes you'll need to reload Radarr.
-        </div>
+        <div dangerouslySetInnerHTML={{ __html: translate('VersionUpdateText', [`<span className=${styles.version}>${version}</span>`]) }} />
 
         {
           isPopulated && !error && !!update &&
             <div>
               {
                 !update.changes &&
-                  <div className={styles.maintenance}>Maintenance release</div>
+                  <div className={styles.maintenance}>
+                    {translate('MaintenanceRelease')}
+                  </div>
               }
 
               {
                 !!update.changes &&
                   <div>
                     <div className={styles.changes}>
-                      What's new?
+                      {translate('WhatsNew')}
                     </div>
 
                     <UpdateChanges
@@ -73,14 +111,14 @@ function AppUpdatedModalContent(props) {
         <Button
           onPress={onSeeChangesPress}
         >
-          Recent Changes
+          {translate('RecentChanges')}
         </Button>
 
         <Button
           kind={kinds.PRIMARY}
           onPress={onModalClose}
         >
-          Reload
+          {translate('Reload')}
         </Button>
       </ModalFooter>
     </ModalContent>
@@ -89,6 +127,7 @@ function AppUpdatedModalContent(props) {
 
 AppUpdatedModalContent.propTypes = {
   version: PropTypes.string.isRequired,
+  prevVersion: PropTypes.string,
   isPopulated: PropTypes.bool.isRequired,
   error: PropTypes.object,
   items: PropTypes.arrayOf(PropTypes.object).isRequired,

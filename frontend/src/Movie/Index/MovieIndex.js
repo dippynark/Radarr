@@ -246,7 +246,7 @@ class MovieIndex extends Component {
 
   onKeyUp = (event) => {
     const jumpBarItems = this.state.jumpBarItems.order;
-    if (event.path.length === 4) {
+    if (event.composedPath && event.composedPath().length === 4) {
       if (event.keyCode === keyCodes.HOME && event.ctrlKey) {
         this.setState({ jumpToCharacter: jumpBarItems[0] });
       }
@@ -519,7 +519,7 @@ class MovieIndex extends Component {
             {
               !isFetching && !!error &&
                 <div className={styles.errorMessage}>
-                  {getErrorMessage(error, 'Failed to load movie from API')}
+                  {getErrorMessage(error, translate('FailedToLoadMovieFromAPI'))}
                 </div>
             }
 
@@ -610,7 +610,7 @@ class MovieIndex extends Component {
                 Are you sure you want to perform mass movie search for {isMovieEditorActive && selectedMovieIds.length > 0 ? selectedMovieIds.length : this.props.items.length} movies?
               </div>
               <div>
-                This cannot be cancelled once started without restarting Radarr.
+                {translate('ThisCannotBeCancelled')}
               </div>
             </div>
           }

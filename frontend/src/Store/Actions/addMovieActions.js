@@ -33,6 +33,7 @@ export const defaultState = {
     monitor: 'true',
     qualityProfileId: 0,
     minimumAvailability: 'announced',
+    searchForMovie: true,
     tags: []
   }
 };
@@ -87,6 +88,8 @@ export const actionHandlers = handleThunks({
     abortCurrentRequest = abortRequest;
 
     request.done((data) => {
+      data = data.map((movie) => ({ ...movie, internalId: movie.id, id: movie.tmdbId }));
+
       dispatch(batchActions([
         update({ section, data }),
 
@@ -115,6 +118,7 @@ export const actionHandlers = handleThunks({
     const tmdbId = payload.tmdbId;
     const items = getState().addMovie.items;
     const newMovie = getNewMovie(_.cloneDeep(_.find(items, { tmdbId })), payload);
+    newMovie.id = 0;
 
     const promise = createAjaxRequest({
       url: '/movie',
@@ -124,8 +128,12 @@ export const actionHandlers = handleThunks({
     }).request;
 
     promise.done((data) => {
+      const updatedItem = _.cloneDeep(data);
+      updatedItem.id = updatedItem.tmdbId;
+
       dispatch(batchActions([
         updateItem({ section: 'movies', ...data }),
+        updateItem({ section: 'addMovie', ...updatedItem }),
 
         set({
           section,

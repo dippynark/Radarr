@@ -2,10 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
 using NzbDrone.Common.EnsureThat;
 using NzbDrone.Common.Extensions;
 using NzbDrone.Common.Reflection;
+using NzbDrone.Common.Serializer;
 using NzbDrone.Core.Annotations;
 
 namespace Radarr.Http.ClientSchema
@@ -100,13 +101,19 @@ namespace Radarr.Http.ClientSchema
                         Order = fieldAttribute.Order,
                         Advanced = fieldAttribute.Advanced,
                         Type = fieldAttribute.Type.ToString().FirstCharToLower(),
-                        Section = fieldAttribute.Section,
-                        RequestAction = fieldAttribute.RequestAction
+                        Section = fieldAttribute.Section
                     };
 
                     if (fieldAttribute.Type == FieldType.Select || fieldAttribute.Type == FieldType.TagSelect)
                     {
-                        field.SelectOptions = GetSelectOptions(fieldAttribute.SelectOptions);
+                        if (fieldAttribute.SelectOptionsProviderAction.IsNotNullOrWhiteSpace())
+                        {
+                            field.SelectOptionsProviderAction = fieldAttribute.SelectOptionsProviderAction;
+                        }
+                        else
+                        {
+                            field.SelectOptions = GetSelectOptions(fieldAttribute.SelectOptions);
+                        }
                     }
 
                     if (fieldAttribute.Hidden != HiddenType.Visible)
@@ -215,9 +222,13 @@ namespace Radarr.Http.ClientSchema
             {
                 return fieldValue =>
                 {
-                    if (fieldValue.GetType() == typeof(JArray))
+                    if (fieldValue == null)
                     {
-                        return ((JArray)fieldValue).Select(s => s.Value<int>());
+                        return Enumerable.Empty<int>();
+                    }
+                    else if (fieldValue is JsonElement e && e.ValueKind == JsonValueKind.Array)
+                    {
+                        return e.EnumerateArray().Select(s => s.GetInt32());
                     }
                     else
                     {
@@ -229,9 +240,13 @@ namespace Radarr.Http.ClientSchema
             {
                 return fieldValue =>
                 {
-                    if (fieldValue.GetType() == typeof(JArray))
+                    if (fieldValue == null)
                     {
-                        return ((JArray)fieldValue).Select(s => s.Value<string>());
+                        return Enumerable.Empty<string>();
+                    }
+                    else if (fieldValue is JsonElement e && e.ValueKind == JsonValueKind.Array)
+                    {
+                        return e.EnumerateArray().Select(s => s.GetString());
                     }
                     else
                     {
@@ -241,7 +256,18 @@ namespace Radarr.Http.ClientSchema
             }
             else
             {
-                return fieldValue => fieldValue;
+                return fieldValue =>
+                {
+                    var element = fieldValue as JsonElement?;
+
+                    if (element == null || !element.HasValue)
+                    {
+                        return null;
+                    }
+
+                    var json = element.Value.GetRawText();
+                    return STJson.Deserialize(json, propertyType);
+                };
             }
         }
 

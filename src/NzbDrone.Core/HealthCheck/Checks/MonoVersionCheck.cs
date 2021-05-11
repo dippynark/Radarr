@@ -26,19 +26,9 @@ namespace NzbDrone.Core.HealthCheck.Checks
 
             var monoVersion = _platformInfo.Version;
 
-            // Known buggy Mono versions
-            if (monoVersion == new Version("4.4.0") || monoVersion == new Version("4.4.1"))
-            {
-                _logger.Debug("Mono version {0}", monoVersion);
-                return new HealthCheck(GetType(),
-                    HealthCheckResult.Error,
-                    $"Currently installed Mono version {monoVersion} has a bug that causes issues connecting to indexers/download clients. You should upgrade to a higher version",
-                    "#currently-installed-mono-version-is-old-and-unsupported");
-            }
-
             // Currently best stable Mono version (5.18 gets us .net 4.7.2 support)
             var bestVersion = new Version("5.20");
-            var targetVersion = new Version("5.18");
+            var targetVersion = new Version("5.20");
             if (monoVersion >= targetVersion)
             {
                 _logger.Debug("Mono version is {0} or better: {1}", targetVersion, monoVersion);
@@ -46,29 +36,29 @@ namespace NzbDrone.Core.HealthCheck.Checks
             }
 
             // Stable Mono versions
-            var stableVersion = new Version("5.18");
+            var stableVersion = new Version("5.20");
             if (monoVersion >= stableVersion)
             {
                 _logger.Debug("Mono version is {0} or better: {1}", stableVersion, monoVersion);
                 return new HealthCheck(GetType(),
                     HealthCheckResult.Notice,
                     string.Format(_localizationService.GetLocalizedString("MonoVersionCheckUpgradeRecommendedMessage"), monoVersion, bestVersion),
-                    "#currently-installed-mono-version-is-supported-but-upgrading-is-recommended");
+                    "#currently_installed_mono_version_is_supported_but_upgrading_is_recommended");
             }
 
-            var oldVersion = new Version("5.4");
+            var oldVersion = new Version("5.20");
             if (monoVersion >= oldVersion)
             {
                 return new HealthCheck(GetType(),
                     HealthCheckResult.Error,
                     string.Format(_localizationService.GetLocalizedString("MonoVersionCheckUpgradeRecommendedMessage"), monoVersion, bestVersion),
-                    "#currently-installed-mono-version-is-old-and-unsupported");
+                    "#currently_installed_mono_version_is_old_and_unsupported");
             }
 
             return new HealthCheck(GetType(),
                 HealthCheckResult.Error,
                 string.Format(_localizationService.GetLocalizedString("MonoVersionCheckUpgradeRecommendedMessage"), monoVersion, bestVersion),
-                "#currently-installed-mono-version-is-old-and-unsupported");
+                "#currently_installed_mono_version_is_old_and_unsupported");
         }
 
         public override bool CheckOnSchedule => false;

@@ -14,9 +14,7 @@ namespace NzbDrone.Core.Parser
     {
         private static readonly Logger Logger = NzbDroneLogger.GetLogger(typeof(Parser));
 
-        private static readonly Regex ReportYearRegex = new Regex(@"^.*(?<year>(19|20)\d{2}).*$", RegexOptions.Compiled);
-
-        private static readonly Regex EditionRegex = new Regex(@"\(?\b(?<edition>(((Recut.|Extended.|Ultimate.)?(Director.?s|Collector.?s|Theatrical|Ultimate|Final(?=(.(Cut|Edition|Version)))|Extended|Rogue|Special|Despecialized|\d{2,3}(th)?.Anniversary)(.(Cut|Edition|Version))?(.(Extended|Uncensored|Remastered|Unrated|Uncut|IMAX|Fan.?Edit))?|((Uncensored|Remastered|Unrated|Uncut|IMAX|Fan.?Edit|Edition|Restored|((2|3|4)in1))))))\b\)?", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex EditionRegex = new Regex(@"\(?\b(?<edition>(((Recut.|Extended.|Ultimate.)?(Director.?s|Collector.?s|Theatrical|Ultimate|Extended|Despecialized|(Special|Rouge|Final|Assembly)(?=(.(Cut|Edition|Version)))|\d{2,3}(th)?.Anniversary)(.(Cut|Edition|Version))?(.(Extended|Uncensored|Remastered|Unrated|Uncut|IMAX|Fan.?Edit))?|((Uncensored|Remastered|Unrated|Uncut|IMAX|Fan.?Edit|Edition|Restored|((2|3|4)in1))))))\b\)?", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         private static readonly Regex ReportEditionRegex = new Regex(@"^.+?" + EditionRegex, RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
@@ -91,6 +89,7 @@ namespace NzbDrone.Core.Parser
                                                                 RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         private static readonly Regex ReportImdbId = new Regex(@"(?<imdbid>tt\d{7,8})", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static readonly Regex ReportTmdbId = new Regex(@"tmdb(id)?-(?<tmdbid>\d+)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         private static readonly RegexReplace SimpleTitleRegex = new RegexReplace(@"\s*(?:480[ip]|576[ip]|720[ip]|1080[ip]|2160[ip]|[xh][\W_]?26[45]|DD\W?5\W1|[<>?*:|]|848x480|1280x720|1920x1080|(8|10)b(it)?)",
                                                                 string.Empty,
@@ -117,7 +116,7 @@ namespace NzbDrone.Core.Parser
         private static readonly Regex CleanQualityBracketsRegex = new Regex(@"\[[a-z0-9 ._-]+\]$",
                                                                    RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-        private static readonly Regex ReleaseGroupRegex = new Regex(@"-(?<releasegroup>[a-z0-9]+(?!.+?(?:480p|720p|1080p|2160p)))(?<!.*?WEB-DL|Blu-Ray|480p|720p|1080p|2160p|DTS-HD|DTS-X|DTS-MA|DTS-ES)(?:\b|[-._ ]|$)|[-._ ]\[(?<releasegroup>[a-z0-9]+)\]$",
+        private static readonly Regex ReleaseGroupRegex = new Regex(@"-(?<releasegroup>[a-z0-9]+(?<part2>-[a-z0-9]+)?(?!.+?(?:480p|720p|1080p|2160p)))(?<!(?:WEB-DL|Blu-Ray|480p|720p|1080p|2160p|DTS-HD|DTS-X|DTS-MA|DTS-ES|[ ._]\d{4}-\d{2}|-\d{2}|tmdb(id)?-(?<tmdbid>\d+)|(?<imdbid>tt\d{7,8}))(?:\k<part2>)?)(?:\b|[-._ ]|$)|[-._ ]\[(?<releasegroup>[a-z0-9]+)\]$",
                                                                 RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         private static readonly Regex AnimeReleaseGroupRegex = new Regex(@"^(?:\[(?<subgroup>(?!\s).+?(?<!\s))\](?:_|-|\s|\.)?)",
@@ -125,6 +124,11 @@ namespace NzbDrone.Core.Parser
 
         private static readonly Regex YearInTitleRegex = new Regex(@"^(?<title>.+?)(?:\W|_)?(?<year>\d{4})",
                                                                 RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+        //Handle Exception Release Groups that don't follow -RlsGrp; Manual List
+        //First Group is groups whose releases end with RlsGroup) or RlsGroup]  second group (entries after `(?=\]|\))|`) is name only...BE VERY CAREFUL WITH THIS, HIGH CHANCE OF FALSE POSITIVES
+        private static readonly Regex ExceptionReleaseGroupRegex = new Regex(@"(?<releasegroup>(Tigole|Joy|YIFY|YTS.MX|FreetheFish|afm72|Anna|Bandi|Ghost|Kappa|MONOLITH|Qman|RZeroX|SAMPA|Silence|theincognito|t3nzin|Vyndros)(?=\]|\))|KRaLiMaRKo|E\.N\.D)",
+                                                        RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         private static readonly Regex WordDelimiterRegex = new Regex(@"(\s|\.|,|_|-|=|'|\|)+", RegexOptions.Compiled);
         private static readonly Regex SpecialCharRegex = new Regex(@"(\&|\:|\\|\/)+", RegexOptions.Compiled);
@@ -274,6 +278,7 @@ namespace NzbDrone.Core.Parser
                                 result.SimpleReleaseTitle = simpleReleaseTitle;
 
                                 result.ImdbId = ParseImdbId(simpleReleaseTitle);
+                                result.TmdbId = ParseTmdbId(simpleReleaseTitle);
 
                                 return result;
                             }
@@ -315,6 +320,20 @@ namespace NzbDrone.Core.Parser
             return "";
         }
 
+        public static int ParseTmdbId(string title)
+        {
+            var match = ReportTmdbId.Match(title);
+            if (match.Success)
+            {
+                if (match.Groups["tmdbid"].Value != null)
+                {
+                    return int.TryParse(match.Groups["tmdbid"].Value, out var tmdbId) ? tmdbId : 0;
+                }
+            }
+
+            return 0;
+        }
+
         public static string ParseEdition(string languageTitle)
         {
             var editionMatch = ReportEditionRegex.Match(languageTitle);
@@ -343,6 +362,13 @@ namespace NzbDrone.Core.Parser
 
         public static string NormalizeImdbId(string imdbId)
         {
+            var imdbRegex = new Regex(@"^(\d{1,10}|(tt)\d{1,10})$");
+
+            if (!imdbRegex.IsMatch(imdbId))
+            {
+                return null;
+            }
+
             if (imdbId.Length > 2)
             {
                 imdbId = imdbId.Replace("tt", "").PadLeft(7, '0');
@@ -428,6 +454,13 @@ namespace NzbDrone.Core.Parser
             }
 
             title = CleanReleaseGroupRegex.Replace(title);
+
+            var exceptionMatch = ExceptionReleaseGroupRegex.Matches(title);
+
+            if (exceptionMatch.Count != 0)
+            {
+                return exceptionMatch.OfType<Match>().Last().Groups["releasegroup"].Value;
+            }
 
             var matches = ReleaseGroupRegex.Matches(title);
 
@@ -522,8 +555,7 @@ namespace NzbDrone.Core.Parser
 
             movieName = movieName.Trim(' ');
 
-            int airYear;
-            int.TryParse(matchCollection[0].Groups["year"].Value, out airYear);
+            int.TryParse(matchCollection[0].Groups["year"].Value, out var airYear);
 
             ParsedMovieInfo result;
 

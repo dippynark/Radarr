@@ -1,6 +1,5 @@
 using System.Linq;
 using System.Runtime.InteropServices;
-using NLog;
 using NzbDrone.Common.EnvironmentInfo;
 using NzbDrone.Common.Processes;
 using NzbDrone.Core.Localization;
@@ -9,17 +8,13 @@ namespace NzbDrone.Core.HealthCheck.Checks
 {
     public class MonoNotNetCoreCheck : HealthCheckBase
     {
-        private static string[] MonoUnames = new string[] { "FreeBSD", "OpenBSD", "MidnightBSD", "NetBSD" };
-        private readonly IOsInfo _osInfo;
+        private static string[] MonoUnames = new string[] { "OpenBSD", "MidnightBSD", "NetBSD" };
         private readonly IProcessProvider _processProvider;
 
-        public MonoNotNetCoreCheck(IOsInfo osInfo,
-                                   IProcessProvider processProvider,
-                                   ILocalizationService localizationService,
-                                   Logger logger)
+        public MonoNotNetCoreCheck(IProcessProvider processProvider,
+                                   ILocalizationService localizationService)
             : base(localizationService)
         {
-            _osInfo = osInfo;
             _processProvider = processProvider;
         }
 
@@ -30,8 +25,8 @@ namespace NzbDrone.Core.HealthCheck.Checks
                 return new HealthCheck(GetType());
             }
 
-            // Don't warn on arm based synology - could be arm5 or something else rubbish
-            if (_osInfo.Name == "DSM" && RuntimeInformation.ProcessArchitecture == Architecture.Arm)
+            // Don't warn on linux x86 - we don't build x86 net core
+            if (OsInfo.IsLinux && RuntimeInformation.ProcessArchitecture == Architecture.X86)
             {
                 return new HealthCheck(GetType());
             }
@@ -46,7 +41,7 @@ namespace NzbDrone.Core.HealthCheck.Checks
             return new HealthCheck(GetType(),
                                    HealthCheckResult.Warning,
                                    _localizationService.GetLocalizedString("MonoNotNetCoreCheckMessage"),
-                                   "#update-to-net-core-version");
+                                   "#update_to_net_core_version");
         }
 
         public override bool CheckOnSchedule => false;

@@ -30,7 +30,8 @@ namespace NzbDrone.Common.Disk
         public abstract long? GetAvailableSpace(string path);
         public abstract void InheritFolderPermissions(string filename);
         public abstract void SetEveryonePermissions(string filename);
-        public abstract void SetPermissions(string path, string mask);
+        public abstract void SetFilePermissions(string path, string mask, string group);
+        public abstract void SetPermissions(string path, string mask, string group);
         public abstract void CopyPermissions(string sourcePath, string targetPath);
         public abstract long? GetTotalSize(string path);
 
@@ -130,7 +131,7 @@ namespace NzbDrone.Common.Disk
             {
                 var testPath = Path.Combine(path, "radarr_write_test.txt");
                 var testContent = string.Format("This file was created to verify if '{0}' is writable. It should've been automatically deleted. Feel free to delete it.", path);
-                File.WriteAllText(testPath, testContent);
+                WriteAllText(testPath, testContent);
                 File.Delete(testPath);
                 return true;
             }
@@ -299,7 +300,16 @@ namespace NzbDrone.Common.Disk
         {
             Ensure.That(filename, () => filename).IsValidPath();
             RemoveReadOnly(filename);
-            File.WriteAllText(filename, contents);
+
+            // File.WriteAllText is broken on net core when writing to some CIFS mounts
+            // This workaround from https://github.com/dotnet/runtime/issues/42790#issuecomment-700362617
+            using (var fs = new FileStream(filename, FileMode.Create, FileAccess.Write, FileShare.None))
+            {
+                using (var writer = new StreamWriter(fs))
+                {
+                    writer.Write(contents);
+                }
+            }
         }
 
         public void FolderSetLastWriteTime(string path, DateTime dateTime)
@@ -539,7 +549,7 @@ namespace NzbDrone.Common.Disk
             }
         }
 
-        public virtual bool IsValidFilePermissionMask(string mask)
+        public virtual bool IsValidFolderPermissionMask(string mask)
         {
             throw new NotSupportedException();
         }

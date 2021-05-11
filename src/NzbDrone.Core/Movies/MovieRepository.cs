@@ -27,20 +27,26 @@ namespace NzbDrone.Core.Movies
         void SetFileId(int fileId, int movieId);
         PagingSpec<Movie> MoviesWhereCutoffUnmet(PagingSpec<Movie> pagingSpec, List<QualitiesBelowCutoff> qualitiesBelowCutoff);
         Movie FindByPath(string path);
-        List<string> AllMoviePaths();
+        Dictionary<int, string> AllMoviePaths();
+        Dictionary<int, string> AllMovieTitleSlugs();
         List<int> AllMovieTmdbIds();
+        Dictionary<int, List<int>> AllMovieTags();
         List<int> GetRecommendations();
     }
 
     public class MovieRepository : BasicRepository<Movie>, IMovieRepository
     {
         private readonly IProfileRepository _profileRepository;
+        private readonly IAlternativeTitleRepository _alternativeTitleRepository;
+
         public MovieRepository(IMainDatabase database,
                                IProfileRepository profileRepository,
+                               IAlternativeTitleRepository alternativeTitleRepository,
                                IEventAggregator eventAggregator)
             : base(database, eventAggregator)
         {
             _profileRepository = profileRepository;
+            _alternativeTitleRepository = alternativeTitleRepository;
         }
 
         protected override SqlBuilder Builder() => new SqlBuilder()
@@ -86,20 +92,30 @@ namespace NzbDrone.Core.Movies
 
         public override IEnumerable<Movie> All()
         {
-            // the skips the join on profile and populates manually
-            // to avoid repeatedly deserializing the same profile
+            // the skips the join on profile and alternative title and populates manually
+            // to avoid repeatedly deserializing the same profile / movie
             var builder = new SqlBuilder()
-                .LeftJoin<Movie, AlternativeTitle>((m, t) => m.Id == t.MovieId)
                 .LeftJoin<Movie, MovieFile>((m, f) => m.Id == f.MovieId);
 
-            var movieDictionary = new Dictionary<int, Movie>();
             var profiles = _profileRepository.All().ToDictionary(x => x.Id);
+            var titles = _alternativeTitleRepository.All()
+                .GroupBy(x => x.MovieId)
+                .ToDictionary(x => x.Key, y => y.ToList());
 
-            _ = _database.QueryJoined<Movie, AlternativeTitle, MovieFile>(
+            return _database.QueryJoined<Movie, MovieFile>(
                 builder,
-                (movie, altTitle, file) => Map(movieDictionary, movie, profiles[movie.ProfileId], altTitle, file));
+                (movie, file) =>
+                {
+                    movie.MovieFile = file;
+                    movie.Profile = profiles[movie.ProfileId];
 
-            return movieDictionary.Values.ToList();
+                    if (titles.TryGetValue(movie.Id, out var altTitles))
+                    {
+                        movie.AlternativeTitles = altTitles;
+                    }
+
+                    return movie;
+                });
         }
 
         public bool MoviePathExists(string path)
@@ -274,11 +290,21 @@ namespace NzbDrone.Core.Movies
             return Query(x => x.Path == path).FirstOrDefault();
         }
 
-        public List<string> AllMoviePaths()
+        public Dictionary<int, string> AllMoviePaths()
         {
             using (var conn = _database.OpenConnection())
             {
-                return conn.Query<string>("SELECT Path FROM Movies").ToList();
+                var strSql = "SELECT Id AS [Key], Path AS [Value] FROM Movies";
+                return conn.Query<KeyValuePair<int, string>>(strSql).ToDictionary(x => x.Key, x => x.Value);
+            }
+        }
+
+        public Dictionary<int, string> AllMovieTitleSlugs()
+        {
+            using (var conn = _database.OpenConnection())
+            {
+                var strSql = "SELECT Id AS [Key], TitleSlug AS [Value] FROM Movies";
+                return conn.Query<KeyValuePair<int, string>>(strSql).ToDictionary(x => x.Key, x => x.Value);
             }
         }
 
@@ -290,21 +316,44 @@ namespace NzbDrone.Core.Movies
             }
         }
 
+        public Dictionary<int, List<int>> AllMovieTags()
+        {
+            using (var conn = _database.OpenConnection())
+            {
+                var strSql = "SELECT Id AS [Key], Tags AS [Value] FROM Movies";
+                return conn.Query<KeyValuePair<int, List<int>>>(strSql).ToDictionary(x => x.Key, x => x.Value);
+            }
+        }
+
         public List<int> GetRecommendations()
         {
-            var recommendations = new List<List<int>>();
-            var tmdbIds = AllMovieTmdbIds();
+            var recommendations = new List<int>();
+
+            if (_database.Version < new Version("3.9.0"))
+            {
+                return recommendations;
+            }
 
             using (var conn = _database.OpenConnection())
             {
-                recommendations =  conn.Query<List<int>>("SELECT Recommendations FROM Movies ORDER BY id DESC LIMIT 100").ToList();
+                recommendations = conn.Query<int>(@"SELECT DISTINCT Rec FROM (
+                                                    SELECT DISTINCT Rec FROM
+                                                    (
+                                                    SELECT DISTINCT CAST(j.value AS INT) AS Rec FROM Movies CROSS JOIN json_each(Movies.Recommendations) AS j
+                                                    WHERE Rec NOT IN (SELECT TmdbId FROM Movies union SELECT TmdbId from ImportExclusions) LIMIT 10
+                                                    )
+                                                    UNION
+                                                    SELECT Rec FROM
+                                                    (
+                                                    SELECT CAST(j.value AS INT) AS Rec FROM Movies CROSS JOIN json_each(Movies.Recommendations) AS j
+                                                    WHERE Rec NOT IN (SELECT TmdbId FROM Movies union SELECT TmdbId from ImportExclusions)
+                                                    GROUP BY Rec ORDER BY count(*) DESC LIMIT 120
+                                                    )
+                                                    )
+                                                    LIMIT 100;").ToList();
             }
 
-            return recommendations.SelectMany(x => x)
-                                  .Where(r => !tmdbIds.Any(m => m == r))
-                                  .Distinct()
-                                  .Take(100)
-                                  .ToList();
+            return recommendations;
         }
     }
 }

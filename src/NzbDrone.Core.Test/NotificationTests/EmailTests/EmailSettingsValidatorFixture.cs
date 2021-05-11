@@ -25,7 +25,6 @@ namespace NzbDrone.Core.Test.NotificationTests.EmailTests
             _emailSettings = Builder<EmailSettings>.CreateNew()
                                         .With(s => s.Server = "someserver")
                                         .With(s => s.Port = 567)
-                                        .With(s => s.Ssl = true)
                                         .With(s => s.From = "radarr@radarr.video")
                                         .With(s => s.To = new string[] { "radarr@radarr.video" })
                                         .Build();
@@ -57,16 +56,6 @@ namespace NzbDrone.Core.Test.NotificationTests.EmailTests
         public void should_not_be_valid_if_from_is_empty()
         {
             _emailSettings.From = "";
-
-            _validator.Validate(_emailSettings).IsValid.Should().BeFalse();
-        }
-
-        [TestCase("radarr")]
-        [TestCase("radarr@radarr")]
-        [TestCase("radarr.video")]
-        public void should_not_be_valid_if_from_is_invalid(string email)
-        {
-            _emailSettings.From = email;
 
             _validator.Validate(_emailSettings).IsValid.Should().BeFalse();
         }

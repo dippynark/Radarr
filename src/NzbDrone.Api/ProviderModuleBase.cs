@@ -3,8 +3,8 @@ using System.Linq;
 using FluentValidation;
 using FluentValidation.Results;
 using Nancy;
-using Newtonsoft.Json;
 using NzbDrone.Common.Reflection;
+using NzbDrone.Common.Serializer;
 using NzbDrone.Core.ThingiProvider;
 using NzbDrone.Core.Validation;
 using Radarr.Http;
@@ -15,7 +15,7 @@ namespace NzbDrone.Api
     public abstract class ProviderModuleBase<TProviderResource, TProvider, TProviderDefinition> : RadarrRestModule<TProviderResource>
         where TProviderDefinition : ProviderDefinition, new()
         where TProvider : IProvider
-        where TProviderResource : ProviderResource, new()
+        where TProviderResource : ProviderResource<TProviderResource>, new()
     {
         private readonly IProviderFactory<TProvider, TProviderDefinition> _providerFactory;
 
@@ -119,8 +119,8 @@ namespace NzbDrone.Api
 
             resource.Fields = SchemaBuilder.ToSchema(definition.Settings);
 
-            resource.InfoLink = string.Format("https://github.com/Radarr/Radarr/wiki/Supported-{0}#{1}",
-                typeof(TProviderResource).Name.Replace("Resource", "s"),
+            //Radarr_Supported_{0} are custom build redirect pages; if passing a new var, create a new redirect
+            resource.InfoLink = string.Format("https://wiki.servarr.com/Radarr_Supported_{0}",
                 definition.Implementation.ToLower());
         }
 
@@ -160,8 +160,7 @@ namespace NzbDrone.Api
                 {
                     var presetResource = new TProviderResource();
                     MapToResource(presetResource, v);
-
-                    return presetResource as ProviderResource;
+                    return presetResource;
                 }).ToList();
 
                 result.Add(providerResource);
@@ -188,7 +187,7 @@ namespace NzbDrone.Api
             var query = ((IDictionary<string, object>)Request.Query.ToDictionary()).ToDictionary(k => k.Key, k => k.Value.ToString());
 
             var data = _providerFactory.RequestAction(providerDefinition, action, query);
-            Response resp = JsonConvert.SerializeObject(data);
+            Response resp = data.ToJson();
             resp.ContentType = "application/json";
             return resp;
         }

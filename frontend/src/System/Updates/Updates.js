@@ -10,6 +10,7 @@ import PageContent from 'Components/Page/PageContent';
 import PageContentBody from 'Components/Page/PageContentBody';
 import { icons, kinds } from 'Helpers/Props';
 import formatDate from 'Utilities/Date/formatDate';
+import formatDateTime from 'Utilities/Date/formatDateTime';
 import translate from 'Utilities/String/translate';
 import UpdateChanges from './UpdateChanges';
 import styles from './Updates.css';
@@ -32,6 +33,8 @@ class Updates extends Component {
       isDocker,
       updateMechanismMessage,
       shortDateFormat,
+      longDateFormat,
+      timeFormat,
       onInstallLatestPress
     } = this.props;
 
@@ -41,11 +44,11 @@ class Updates extends Component {
     const hasUpdateToInstall = hasUpdates && _.some(items, { installable: true, latest: true });
     const noUpdateToInstall = hasUpdates && !hasUpdateToInstall;
 
-    const externalUpdaterPrefix = 'Unable to update Radarr directly,';
+    const externalUpdaterPrefix = translate('UnableToUpdateRadarrDirectly');
     const externalUpdaterMessages = {
-      external: 'Radarr is configured to use an external update mechanism',
-      apt: 'use apt to install the update',
-      docker: 'update the docker container to receive the update'
+      external: translate('ExternalUpdater'),
+      apt: translate('AptUpdater'),
+      docker: translate('DockerUpdater')
     };
 
     return (
@@ -74,7 +77,7 @@ class Updates extends Component {
                       isSpinning={isInstallingUpdate}
                       onPress={onInstallLatestPress}
                     >
-                      Install Latest
+                      {translate('InstallLatest')}
                     </SpinnerButton> :
 
                     <Fragment>
@@ -110,7 +113,7 @@ class Updates extends Component {
                 />
 
                 <div className={styles.message}>
-                  The latest version of Radarr is already installed
+                  {translate('OnLatestVersion')}
                 </div>
 
                 {
@@ -138,7 +141,12 @@ class Updates extends Component {
                         <div className={styles.info}>
                           <div className={styles.version}>{update.version}</div>
                           <div className={styles.space}>&mdash;</div>
-                          <div className={styles.date}>{formatDate(update.releaseDate, shortDateFormat)}</div>
+                          <div
+                            className={styles.date}
+                            title={formatDateTime(update.releaseDate, longDateFormat, timeFormat)}
+                          >
+                            {formatDate(update.releaseDate, shortDateFormat)}
+                          </div>
 
                           {
                             update.branch === 'master' ?
@@ -155,8 +163,21 @@ class Updates extends Component {
                               <Label
                                 className={styles.label}
                                 kind={kinds.SUCCESS}
+                                title={formatDateTime(update.installedOn, longDateFormat, timeFormat)}
                               >
-                                Currently Installed
+                                {translate('CurrentlyInstalled')}
+                              </Label> :
+                              null
+                          }
+
+                          {
+                            update.version !== currentVersion && update.installedOn ?
+                              <Label
+                                className={styles.label}
+                                kind={kinds.INVERSE}
+                                title={formatDateTime(update.installedOn, longDateFormat, timeFormat)}
+                              >
+                                Previously Installed
                               </Label> :
                               null
                           }
@@ -222,6 +243,8 @@ Updates.propTypes = {
   updateMechanism: PropTypes.string,
   updateMechanismMessage: PropTypes.string,
   shortDateFormat: PropTypes.string.isRequired,
+  longDateFormat: PropTypes.string.isRequired,
+  timeFormat: PropTypes.string.isRequired,
   onInstallLatestPress: PropTypes.func.isRequired
 };
 

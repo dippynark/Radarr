@@ -81,7 +81,8 @@ class AddNewMovie extends Component {
     const {
       error,
       items,
-      hasExistingMovies
+      hasExistingMovies,
+      colorImpairedMode
     } = this.props;
 
     const term = this.state.term;
@@ -141,6 +142,7 @@ class AddNewMovie extends Component {
                     return (
                       <AddNewMovieSearchResultConnector
                         key={item.tmdbId}
+                        colorImpairedMode={colorImpairedMode}
                         {...item}
                       />
                     );
@@ -159,7 +161,7 @@ class AddNewMovie extends Component {
                   {translate('YouCanAlsoSearch')}
                 </div>
                 <div>
-                  <Link to="https://github.com/Radarr/Radarr/wiki/FAQ#why-cant-i-add-a-new-movie-when-i-know-the-tmdb-id">
+                  <Link to="https://wiki.servarr.com/Radarr_FAQ#Why_cant_I_add_a_new_movie_to_Radarr">
                     {translate('CantFindMovie')}
                   </Link>
                 </div>
@@ -213,7 +215,8 @@ AddNewMovie.propTypes = {
   items: PropTypes.arrayOf(PropTypes.object).isRequired,
   hasExistingMovies: PropTypes.bool.isRequired,
   onMovieLookupChange: PropTypes.func.isRequired,
-  onClearMovieLookup: PropTypes.func.isRequired
+  onClearMovieLookup: PropTypes.func.isRequired,
+  colorImpairedMode: PropTypes.bool.isRequired
 };
 
 export default AddNewMovie;

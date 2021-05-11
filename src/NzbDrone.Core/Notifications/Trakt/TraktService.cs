@@ -19,7 +19,7 @@ namespace NzbDrone.Core.Notifications.Trakt
         HttpRequest GetOAuthRequest(string callbackUrl);
         TraktAuthRefreshResource RefreshAuthToken(string refreshToken);
         void AddMovieToCollection(TraktSettings settings, Movie movie, MovieFile movieFile);
-        void RemoveMovieFromCollection(TraktSettings settings, Movie movie, MovieFile movieFile);
+        void RemoveMovieFromCollection(TraktSettings settings, Movie movie);
         string GetUserName(string accessToken);
         ValidationFailure Test(TraktSettings settings);
     }
@@ -76,7 +76,7 @@ namespace NzbDrone.Core.Notifications.Trakt
             }
         }
 
-        public void RemoveMovieFromCollection(TraktSettings settings, Movie movie, MovieFile movieFile)
+        public void RemoveMovieFromCollection(TraktSettings settings, Movie movie)
         {
             var payload = new TraktCollectMoviesResource
             {
@@ -252,20 +252,7 @@ namespace NzbDrone.Core.Notifications.Trakt
         {
             var audioChannels = movieFile.MediaInfo != null ? MediaInfoFormatter.FormatAudioChannels(movieFile.MediaInfo).ToString("0.0") : string.Empty;
 
-            // Map cases where Radarr doesn't handle MI correctly, can purge once mediainfo handling is improved
-            if (audioChannels == "8.0")
-            {
-                audioChannels = "7.1";
-            }
-            else if (audioChannels == "6.0" && audioFormat == "dts_ma")
-            {
-                audioChannels = "7.1";
-            }
-            else if (audioChannels == "6.0" && audioFormat != "dts_ma")
-            {
-                audioChannels = "5.1";
-            }
-            else if (audioChannels == "0.0")
+            if (audioChannels == "0.0")
             {
                 audioChannels = string.Empty;
             }

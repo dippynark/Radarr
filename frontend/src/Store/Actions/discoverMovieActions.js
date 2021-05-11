@@ -49,8 +49,8 @@ export const defaultState = {
     monitor: 'true',
     qualityProfileId: 0,
     minimumAvailability: 'announced',
-    tags: [],
-    searchForMovie: false
+    searchForMovie: true,
+    tags: []
   },
 
   posterOptions: {
@@ -235,9 +235,9 @@ export const defaultState = {
   filterBuilderProps: [
     {
       name: 'status',
-      label: 'Status',
+      label: translate('ReleaseStatus'),
       type: filterBuilderTypes.EXACT,
-      valueType: filterBuilderValueTypes.MOVIE_STATUS
+      valueType: filterBuilderValueTypes.RELEASE_STATUS
     },
     {
       name: 'studio',
@@ -316,6 +316,18 @@ export const defaultState = {
 
         return tagList.sort(sortByName);
       }
+    },
+    {
+      name: 'isAvailable',
+      label: translate('ConsideredAvailable'),
+      type: filterBuilderTypes.EXACT,
+      valueType: filterBuilderValueTypes.BOOL
+    },
+    {
+      name: 'minimumAvailability',
+      label: translate('MinimumAvailability'),
+      type: filterBuilderTypes.EXACT,
+      valueType: filterBuilderValueTypes.MINIMUM_AVAILABILITY
     },
     {
       name: 'ratings',

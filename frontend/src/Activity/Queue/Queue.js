@@ -32,6 +32,8 @@ class Queue extends Component {
   constructor(props, context) {
     super(props, context);
 
+    this._shouldBlockRefresh = false;
+
     this.state = {
       allSelected: false,
       allUnselected: false,
@@ -41,6 +43,14 @@ class Queue extends Component {
       isConfirmRemoveModalOpen: false,
       items: props.items
     };
+  }
+
+  shouldComponentUpdate() {
+    if (this._shouldBlockRefresh) {
+      return false;
+    }
+
+    return true;
   }
 
   componentDidUpdate(prevProps) {
@@ -85,6 +95,10 @@ class Queue extends Component {
   //
   // Listeners
 
+  onQueueRowModalOpenOrClose = (isOpen) => {
+    this._shouldBlockRefresh = isOpen;
+  }
+
   onSelectAllChange = ({ value }) => {
     this.setState(selectAll(this.state.selectedState, value));
   }
@@ -100,15 +114,19 @@ class Queue extends Component {
   }
 
   onRemoveSelectedPress = () => {
-    this.setState({ isConfirmRemoveModalOpen: true });
+    this.setState({ isConfirmRemoveModalOpen: true }, () => {
+      this._shouldBlockRefresh = true;
+    });
   }
 
   onRemoveSelectedConfirmed = (payload) => {
+    this._shouldBlockRefresh = false;
     this.props.onRemoveSelectedPress({ ids: this.getSelectedIds(), ...payload });
     this.setState({ isConfirmRemoveModalOpen: false });
   }
 
   onConfirmRemoveModalClose = () => {
+    this._shouldBlockRefresh = false;
     this.setState({ isConfirmRemoveModalOpen: false });
   }
 
@@ -203,14 +221,14 @@ class Queue extends Component {
           {
             !isRefreshing && hasError &&
               <div>
-                Failed to load Queue
+                {translate('FailedToLoadQueue')}
               </div>
           }
 
           {
-            isPopulated && !hasError && !items.length &&
+            isAllPopulated && !hasError && !items.length &&
               <div>
-                Queue is empty
+                {translate('QueueIsEmpty')}
               </div>
           }
 
@@ -237,6 +255,7 @@ class Queue extends Component {
                             columns={columns}
                             {...item}
                             onSelectedChange={this.onSelectedChange}
+                            onQueueRowModalOpenOrClose={this.onQueueRowModalOpenOrClose}
                           />
                         );
                       })

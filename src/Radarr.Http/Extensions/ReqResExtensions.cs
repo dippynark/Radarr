@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using Nancy;
@@ -11,6 +11,7 @@ namespace Radarr.Http.Extensions
     public static class ReqResExtensions
     {
         private static readonly NancyJsonSerializer NancySerializer = new NancyJsonSerializer();
+        private static readonly string Expires = DateTime.UtcNow.AddYears(1).ToString("r");
 
         public static readonly string LastModified = BuildInfo.BuildDateTime.ToString("r");
 
@@ -27,10 +28,8 @@ namespace Radarr.Http.Extensions
 
         public static object FromJson(this Stream body, Type type)
         {
-            var reader = new StreamReader(body, true);
             body.Position = 0;
-            var value = reader.ReadToEnd();
-            return Json.Deserialize(value, type);
+            return STJson.Deserialize(body, type);
         }
 
         public static JsonResponse<TModel> AsResponse<TModel>(this TModel model, NancyContext context, HttpStatusCode statusCode = HttpStatusCode.OK)
@@ -52,8 +51,8 @@ namespace Radarr.Http.Extensions
 
         public static IDictionary<string, string> EnableCache(this IDictionary<string, string> headers)
         {
-            headers["Cache-Control"] = "max-age=31536000 , public";
-            headers["Expires"] = "Sat, 29 Jun 2020 00:00:00 GMT";
+            headers["Cache-Control"] = "max-age=31536000, public";
+            headers["Expires"] = Expires;
             headers["Last-Modified"] = LastModified;
             headers["Age"] = "193266";
 

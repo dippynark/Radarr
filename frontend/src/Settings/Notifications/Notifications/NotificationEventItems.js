@@ -19,13 +19,17 @@ function NotificationEventItems(props) {
     onDownload,
     onUpgrade,
     onRename,
-    onDelete,
+    onMovieDelete,
+    onMovieFileDelete,
+    onMovieFileDeleteForUpgrade,
     onHealthIssue,
     supportsOnGrab,
     supportsOnDownload,
     supportsOnUpgrade,
     supportsOnRename,
-    supportsOnDelete,
+    supportsOnMovieDelete,
+    supportsOnMovieFileDelete,
+    supportsOnMovieFileDeleteForUpgrade,
     supportsOnHealthIssue,
     includeHealthWarnings
   } = item;
@@ -35,8 +39,8 @@ function NotificationEventItems(props) {
       <FormLabel>{translate('NotificationTriggers')}</FormLabel>
       <div>
         <FormInputHelpText
-          text="Select which events should trigger this notification"
-          link="https://github.com/Radarr/Radarr/wiki/Connections"
+          text={translate('NotifcationTriggersHelpText')}
+          link="https://wiki.servarr.com/Radarr_Settings#Connections"
         />
         <div className={styles.events}>
           <div>
@@ -89,13 +93,38 @@ function NotificationEventItems(props) {
           <div>
             <FormInputGroup
               type={inputTypes.CHECK}
-              name="onDelete"
-              helpText={translate('OnDeleteHelpText')}
-              isDisabled={!supportsOnDelete.value}
-              {...onDelete}
+              name="onMovieDelete"
+              helpText={translate('OnMovieDeleteHelpText')}
+              isDisabled={!supportsOnMovieDelete.value}
+              {...onMovieDelete}
               onChange={onInputChange}
             />
           </div>
+
+          <div>
+            <FormInputGroup
+              type={inputTypes.CHECK}
+              name="onMovieFileDelete"
+              helpText={translate('OnMovieFileDeleteHelpText')}
+              isDisabled={!supportsOnMovieFileDelete.value}
+              {...onMovieFileDelete}
+              onChange={onInputChange}
+            />
+          </div>
+
+          {
+            onMovieFileDelete.value &&
+              <div>
+                <FormInputGroup
+                  type={inputTypes.CHECK}
+                  name="onMovieFileDeleteForUpgrade"
+                  helpText={translate('OnMovieFileDeleteForUpgradeHelpText')}
+                  isDisabled={!supportsOnMovieFileDeleteForUpgrade.value}
+                  {...onMovieFileDeleteForUpgrade}
+                  onChange={onInputChange}
+                />
+              </div>
+          }
 
           <div>
             <FormInputGroup

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using FluentValidation.Results;
 using NzbDrone.Common.Extensions;
@@ -212,6 +213,43 @@ namespace NzbDrone.Core.Notifications.Discord
             _proxy.SendPayload(payload, Settings);
         }
 
+        public override void OnMovieDelete(MovieDeleteMessage deleteMessage)
+        {
+            var movie = deleteMessage.Movie;
+
+            var attachments = new List<Embed>
+                              {
+                                  new Embed
+                                  {
+                                      Title = movie.Title,
+                                      Description = deleteMessage.DeletedFilesMessage
+                                  }
+                              };
+
+            var payload = CreatePayload("Movie Deleted", attachments);
+
+            _proxy.SendPayload(payload, Settings);
+        }
+
+        public override void OnMovieFileDelete(MovieFileDeleteMessage deleteMessage)
+        {
+            var movie = deleteMessage.Movie;
+
+            var fullPath = Path.Combine(deleteMessage.Movie.Path, deleteMessage.MovieFile.RelativePath);
+            var attachments = new List<Embed>
+                              {
+                                  new Embed
+                                  {
+                                      Title = movie.Title,
+                                      Description = deleteMessage.MovieFile.Path
+                                  }
+                              };
+
+            var payload = CreatePayload("Movie File Deleted", attachments);
+
+            _proxy.SendPayload(payload, Settings);
+        }
+
         public override void OnHealthIssue(HealthCheck.HealthCheck healthCheck)
         {
             var attachments = new List<Embed>
@@ -301,7 +339,7 @@ namespace NzbDrone.Core.Notifications.Discord
 
         private static string GetLinksString(Movie movie)
         {
-            var links = string.Format("[{0}]({1})", "TMDb", $"https://themoviedb.com/movie/{movie.TmdbId}");
+            var links = string.Format("[{0}]({1})", "TMDb", $"https://themoviedb.org/movie/{movie.TmdbId}");
             links += string.Format(" / [{0}]({1})", "Trakt", $"https://trakt.tv/search/tmdb/{movie.TmdbId}?id_type=movie");
             if (movie.ImdbId.IsNotNullOrWhiteSpace())
             {

@@ -21,6 +21,7 @@ function EditImportListModalContent(props) {
     advancedSettings,
     isFetching,
     error,
+    rootFolderError,
     isSaving,
     isTesting,
     saveError,
@@ -52,7 +53,7 @@ function EditImportListModalContent(props) {
   return (
     <ModalContent onModalClose={onModalClose}>
       <ModalHeader>
-        {`${id ? 'Edit' : 'Add'} List - ${implementationName}`}
+        {`${id ? translate('Edit') : translate('Add')} ${translate('List')} - ${implementationName}`}
       </ModalHeader>
 
       <ModalBody>
@@ -62,14 +63,14 @@ function EditImportListModalContent(props) {
         }
 
         {
-          !isFetching && !!error &&
+          !isFetching && (!!error || !!rootFolderError) &&
             <div>
               {translate('UnableToAddANewListPleaseTryAgain')}
             </div>
         }
 
         {
-          !isFetching && !error &&
+          !isFetching && !error && !rootFolderError &&
             <Form
               {...otherProps}
             >
@@ -163,6 +164,7 @@ function EditImportListModalContent(props) {
                   type={inputTypes.ROOT_FOLDER_SELECT}
                   name="rootFolderPath"
                   {...rootFolderPath}
+                  includeMissingValue={true}
                   onChange={onInputChange}
                 />
               </FormGroup>
@@ -239,6 +241,7 @@ EditImportListModalContent.propTypes = {
   advancedSettings: PropTypes.bool.isRequired,
   isFetching: PropTypes.bool.isRequired,
   error: PropTypes.object,
+  rootFolderError: PropTypes.object,
   isSaving: PropTypes.bool.isRequired,
   isTesting: PropTypes.bool.isRequired,
   saveError: PropTypes.object,

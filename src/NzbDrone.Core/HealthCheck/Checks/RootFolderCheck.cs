@@ -29,7 +29,7 @@ namespace NzbDrone.Core.HealthCheck.Checks
         public override HealthCheck Check()
         {
             var rootFolders = _movieService.AllMoviePaths()
-                                                           .Select(s => _rootFolderService.GetBestRootFolderPath(s))
+                                                           .Select(s => _rootFolderService.GetBestRootFolderPath(s.Value))
                                                            .Distinct();
 
             var missingRootFolders = rootFolders.Where(s => !_diskProvider.FolderExists(s))
@@ -39,11 +39,11 @@ namespace NzbDrone.Core.HealthCheck.Checks
             {
                 if (missingRootFolders.Count == 1)
                 {
-                    return new HealthCheck(GetType(), HealthCheckResult.Error, string.Format(_localizationService.GetLocalizedString("RootFolderCheckSingleMessage"), missingRootFolders.First()), "#missing-root-folder");
+                    return new HealthCheck(GetType(), HealthCheckResult.Error, string.Format(_localizationService.GetLocalizedString("RootFolderCheckSingleMessage"), missingRootFolders.First()), "#missing_root_folder");
                 }
 
                 var message = string.Format(_localizationService.GetLocalizedString("RootFolderCheckMultipleMessage"), string.Join(" | ", missingRootFolders));
-                return new HealthCheck(GetType(), HealthCheckResult.Error, message, "#missing-root-folder");
+                return new HealthCheck(GetType(), HealthCheckResult.Error, message, "#missing_root_folder");
             }
 
             return new HealthCheck(GetType());

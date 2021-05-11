@@ -125,6 +125,13 @@ namespace NzbDrone.Core.MetadataSource.SkyHook
 
         public Movie GetMovieByImdbId(string imdbId)
         {
+            imdbId = Parser.Parser.NormalizeImdbId(imdbId);
+
+            if (imdbId == null)
+            {
+                return null;
+            }
+
             var httpRequest = _radarrMetadata.Create()
                                              .SetSegment("route", "movie/imdb")
                                              .Resource(imdbId.ToString())
@@ -336,6 +343,19 @@ namespace NzbDrone.Core.MetadataSource.SkyHook
                             return new List<Movie>();
                         }
                     }
+
+                    if (parserResult.TmdbId > 0)
+                    {
+                        try
+                        {
+                            var movieLookup = GetMovieInfo(parserResult.TmdbId).Item1;
+                            return movieLookup == null ? new List<Movie>() : new List<Movie> { _movieService.FindByTmdbId(movieLookup.TmdbId) ?? movieLookup };
+                        }
+                        catch (Exception)
+                        {
+                            return new List<Movie>();
+                        }
+                    }
                 }
 
                 parserTitle = StripTrailingTheFromTitle(parserTitle);
@@ -401,14 +421,20 @@ namespace NzbDrone.Core.MetadataSource.SkyHook
 
                 return httpResponse.Resource.SelectList(MapSearchResult);
             }
-            catch (HttpException)
+            catch (HttpException ex)
             {
-                throw new SkyHookException("Search for '{0}' failed. Unable to communicate with TMDb.", title);
+                _logger.Warn(ex);
+                throw new SkyHookException("Search for '{0}' failed. Unable to communicate with TMDb.", ex, title);
+            }
+            catch (WebException ex)
+            {
+                _logger.Warn(ex);
+                throw new SkyHookException("Search for '{0}' failed. Unable to communicate with TMDb.", ex, title, ex.Message);
             }
             catch (Exception ex)
             {
-                _logger.Warn(ex, ex.Message);
-                throw new SkyHookException("Search for '{0}' failed. Invalid response received from TMDb.", title);
+                _logger.Warn(ex);
+                throw new SkyHookException("Search for '{0}' failed. Invalid response received from TMDb.", ex, title);
             }
         }
 

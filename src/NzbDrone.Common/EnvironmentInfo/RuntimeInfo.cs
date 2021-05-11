@@ -7,10 +7,6 @@ using System.ServiceProcess;
 using NLog;
 using NzbDrone.Common.Processes;
 
-#if NETCOREAPP
-using Microsoft.Extensions.Hosting.WindowsServices;
-#endif
-
 namespace NzbDrone.Common.EnvironmentInfo
 {
     public class RuntimeInfo : IRuntimeInfo
@@ -27,14 +23,23 @@ namespace NzbDrone.Common.EnvironmentInfo
                                serviceProvider.ServiceExist(ServiceProvider.SERVICE_NAME) &&
                                serviceProvider.GetStatus(ServiceProvider.SERVICE_NAME) == ServiceControllerStatus.StartPending;
 
-            //Guarded to avoid issues when running in a non-managed process
-            var entry = Assembly.GetEntryAssembly();
+#if NETCOREAPP
+            // net5.0 will return Radarr.dll for entry assembly, we need the actual
+            // executable name (Radarr on linux).  On mono this will return the location of
+            // the mono executable itself, which is not what we want.
+            var entry = Process.GetCurrentProcess().MainModule;
 
             if (entry != null)
             {
-                ExecutingApplication = entry.Location;
-                IsWindowsTray = OsInfo.IsWindows && entry.ManifestModule.Name == $"{ProcessProvider.RADARR_PROCESS_NAME}.exe";
+                ExecutingApplication = entry.FileName;
+                IsWindowsTray = OsInfo.IsWindows && entry.ModuleName == $"{ProcessProvider.RADARR_PROCESS_NAME}.exe";
             }
+#else
+            // On mono we need to get the location of the Radarr assembly, not Mono.
+            // Can't be running tray app in mono.
+            ExecutingApplication = Assembly.GetEntryAssembly()?.Location;
+#endif
+
         }
 
         static RuntimeInfo()
@@ -59,12 +64,7 @@ namespace NzbDrone.Common.EnvironmentInfo
             }
         }
 
-#if !NETCOREAPP
         public static bool IsUserInteractive => Environment.UserInteractive;
-#else
-        // Note that Environment.UserInteractive is always true on net core: https://stackoverflow.com/a/57325783
-        public static bool IsUserInteractive => OsInfo.IsWindows && !WindowsServiceHelpers.IsWindowsService();
-#endif
 
         bool IRuntimeInfo.IsUserInteractive => IsUserInteractive;
 

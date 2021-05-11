@@ -8,6 +8,7 @@ using NLog;
 using NzbDrone.Common.Disk;
 using NzbDrone.Common.Extensions;
 using NzbDrone.Common.Processes;
+using NzbDrone.Core.HealthCheck;
 using NzbDrone.Core.Movies;
 using NzbDrone.Core.ThingiProvider;
 using NzbDrone.Core.Validation;
@@ -29,7 +30,7 @@ namespace NzbDrone.Core.Notifications.CustomScript
 
         public override string Name => "Custom Script";
 
-        public override string Link => "https://github.com/Radarr/Radarr/wiki/Custom-Post-Processing-Scripts";
+        public override string Link => "https://wiki.servarr.com/Radarr_Settings#Connections";
 
         public override ProviderMessage Message => new ProviderMessage("Testing will execute the script with the EventType set to Test, ensure your script handles this correctly", ProviderMessageType.Warning);
 
@@ -116,12 +117,61 @@ namespace NzbDrone.Core.Notifications.CustomScript
             ExecuteScript(environmentVariables);
         }
 
+        public override void OnMovieFileDelete(MovieFileDeleteMessage deleteMessage)
+        {
+            var movie = deleteMessage.Movie;
+            var movieFile = deleteMessage.MovieFile;
+
+            var environmentVariables = new StringDictionary();
+
+            environmentVariables.Add("Radarr_EventType", "MovieFileDelete");
+            environmentVariables.Add("Radarr_MovieFile_DeleteReason", deleteMessage.Reason.ToString());
+            environmentVariables.Add("Radarr_Movie_Id", movie.Id.ToString());
+            environmentVariables.Add("Radarr_Movie_Title", movie.Title);
+            environmentVariables.Add("Radarr_Movie_Year", movie.Year.ToString());
+            environmentVariables.Add("Radarr_Movie_Path", movie.Path);
+            environmentVariables.Add("Radarr_Movie_ImdbId", movie.ImdbId ?? string.Empty);
+            environmentVariables.Add("Radarr_Movie_TmdbId", movie.TmdbId.ToString());
+            environmentVariables.Add("Radarr_MovieFile_Id", movieFile.Id.ToString());
+            environmentVariables.Add("Radarr_MovieFile_RelativePath", movieFile.RelativePath);
+            environmentVariables.Add("Radarr_MovieFile_Path", Path.Combine(movie.Path, movieFile.RelativePath));
+            environmentVariables.Add("Radarr_MovieFile_Size", movieFile.Size.ToString());
+            environmentVariables.Add("Radarr_MovieFile_Quality", movieFile.Quality.Quality.Name);
+            environmentVariables.Add("Radarr_MovieFile_QualityVersion", movieFile.Quality.Revision.Version.ToString());
+            environmentVariables.Add("Radarr_MovieFile_ReleaseGroup", movieFile.ReleaseGroup ?? string.Empty);
+            environmentVariables.Add("Radarr_MovieFile_SceneName", movieFile.SceneName ?? string.Empty);
+
+            ExecuteScript(environmentVariables);
+        }
+
+        public override void OnMovieDelete(MovieDeleteMessage deleteMessage)
+        {
+            var movie = deleteMessage.Movie;
+            var environmentVariables = new StringDictionary();
+
+            environmentVariables.Add("Radarr_EventType", "MovieDelete");
+            environmentVariables.Add("Radarr_Movie_Id", movie.Id.ToString());
+            environmentVariables.Add("Radarr_Movie_Title", movie.Title);
+            environmentVariables.Add("Radarr_Movie_Year", movie.Year.ToString());
+            environmentVariables.Add("Radarr_Movie_Path", movie.Path);
+            environmentVariables.Add("Radarr_Movie_ImdbId", movie.ImdbId ?? string.Empty);
+            environmentVariables.Add("Radarr_Movie_TmdbId", movie.TmdbId.ToString());
+            environmentVariables.Add("Radarr_Movie_DeletedFiles", deleteMessage.DeletedFiles.ToString());
+
+            if (deleteMessage.DeletedFiles && movie.MovieFile != null)
+            {
+                environmentVariables.Add("Radarr_Movie_Folder_Size", movie.MovieFile.Size.ToString());
+            }
+
+            ExecuteScript(environmentVariables);
+        }
+
         public override void OnHealthIssue(HealthCheck.HealthCheck healthCheck)
         {
             var environmentVariables = new StringDictionary();
 
             environmentVariables.Add("Radarr_EventType", "HealthIssue");
-            environmentVariables.Add("Radarr_Health_Issue_Level", nameof(healthCheck.Type));
+            environmentVariables.Add("Radarr_Health_Issue_Level", Enum.GetName(typeof(HealthCheckResult), healthCheck.Type));
             environmentVariables.Add("Radarr_Health_Issue_Message", healthCheck.Message);
             environmentVariables.Add("Radarr_Health_Issue_Type", healthCheck.Source.Name);
             environmentVariables.Add("Radarr_Health_Issue_Wiki", healthCheck.WikiUrl.ToString() ?? string.Empty);

@@ -1,5 +1,5 @@
 using System;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 using NzbDrone.Core.Datastore;
 
 namespace NzbDrone.Core.Qualities
@@ -20,6 +20,9 @@ namespace NzbDrone.Core.Qualities
 
         [JsonIgnore]
         public QualityDetectionSource ModifierDetectionSource { get; set; }
+
+        [JsonIgnore]
+        public QualityDetectionSource RevisionDetectionSource { get; set; }
 
         public QualityModel()
             : this(Quality.Unknown, new Revision())

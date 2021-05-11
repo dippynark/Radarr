@@ -29,7 +29,7 @@
         "tags": [
           "Movie"
         ],
-        "summary": "Get all movies",
+        "summary": "Get All Movies",
         "description": "Returns all movies stored in the database",
         "operationId": "getMovie",
         "parameters": [
@@ -72,7 +72,7 @@
             "X-API-Key": []
           },
           {
-            "api key": []
+            "apikey": []
           }
         ]
       },
@@ -175,7 +175,7 @@
         "tags": [
           "Movie"
         ],
-        "summary": "Get movie by database id",
+        "summary": "Get a Movie",
         "description": "Returns a single movie",
         "operationId": "getMovieById",
         "parameters": [
@@ -215,7 +215,7 @@
             "X-API-Key": []
           },
           {
-            "api key": []
+            "apikey": []
           }
         ]
       },
@@ -223,8 +223,8 @@
         "tags": [
           "Movie"
         ],
-        "summary": "Delete movie",
-        "description": "",
+        "summary": "Delete a Movie",
+        "description": "Delete a single movie by database id",
         "operationId": "deleteMovie",
         "parameters": [
           {
@@ -254,6 +254,9 @@
           }
         ],
         "responses": {
+          "200": {
+            "description": "OK"
+          },
           "400": {
             "description": "Invalid ID supplied"
           },
@@ -276,7 +279,7 @@
         "tags": [
           "Tag"
         ],
-        "summary": "Return usage details for a given tag id",
+        "summary": "Get a Tag Details",
         "description": "Returns the id of all items in the database which use the specified tag",
         "operationId": "",
         "responses": {
@@ -299,7 +302,7 @@
             "X-API-Key": []
           },
           {
-            "api key": []
+            "apikey": []
           }
         ]
       },
@@ -320,7 +323,7 @@
         "tags": [
           "Tag"
         ],
-        "summary": "Return usage details for all tags in database",
+        "summary": "Get All Tag Details",
         "description": "Returns a list of tag detail objects for all tags in the database.",
         "operationId": "",
         "responses": {
@@ -346,7 +349,7 @@
             "X-API-Key": []
           },
           {
-            "api key": []
+            "apikey": []
           }
         ]
       },
@@ -357,7 +360,7 @@
         "tags": [
           "Tag"
         ],
-        "summary": "Get tag by database id",
+        "summary": "Get a Tag",
         "description": "Return a given tag and its label by the database id.",
         "operationId": "",
         "responses": {
@@ -380,7 +383,7 @@
             "X-API-Key": []
           },
           {
-            "api key": []
+            "apikey": []
           }
         ]
       },
@@ -388,7 +391,7 @@
         "tags": [
           "Tag"
         ],
-        "summary": "Delete tag by database id",
+        "summary": "Delete a Tag",
         "description": "Delete a tag",
         "operationId": "",
         "responses": {
@@ -415,14 +418,44 @@
             "type": "integer"
           }
         }
-      ]
-    },
-    "/tag": {
-      "get": {
+      ],
+      "put": {
+        "summary": "Edit a Tag",
+        "operationId": "put-tag-id",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
         "tags": [
           "Tag"
         ],
-        "summary": "Get all tags",
+        "description": "Edit a Tag by its database id",
+        "security": [
+          {
+            "X-API-Key": []
+          },
+          {
+            "apikey": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Tag"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tag": {
+      "get": {
+        "summary": "Get All Tags",
         "description": "Get all tags in the database",
         "operationId": "",
         "responses": {
@@ -448,47 +481,18 @@
             "X-API-Key": []
           },
           {
-            "api key": []
+            "apikey": []
           }
-        ]
-      },
-      "put": {
+        ],
         "tags": [
           "Tag"
-        ],
-        "summary": "Update tag",
-        "description": "Update a tags label.",
-        "operationId": "",
-        "requestBody": {
-          "description": "Tag object that needs to be updated",
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Tag"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Successful request"
-          },
-          "401": {
-            "description": "Invalid API Key"
-          }
-        },
-        "security": [
-          {
-            "X-API-Key": []
-          }
         ]
       },
       "post": {
         "tags": [
           "Tag"
         ],
-        "summary": "Create a new tag",
+        "summary": "Create a Tag",
         "description": "Create a new tag that can be assigned to a movie, list, delay profile, notification, or restriction",
         "operationId": "",
         "requestBody": {
@@ -520,32 +524,16 @@
     },
     "/diskspace": {
       "get": {
-        "summary": "Get system diskspace information",
-        "tags": [
-          "Disk Space"
-        ],
+        "summary": "Get System Diskspace Information",
         "responses": {
           "200": {
             "description": "Successful request",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "path": {
-                      "type": "string"
-                    },
-                    "label": {
-                      "type": "string"
-                    },
-                    "freeSpace": {
-                      "type": "number",
-                      "description": "bytes"
-                    },
-                    "totalSpace": {
-                      "type": "number",
-                      "description": "bytes"
-                    }
+                  "type": "array",
+                  "items": {
+                    "type": "object"
                   }
                 },
                 "examples": {
@@ -580,17 +568,17 @@
             "X-API-Key": []
           },
           {
-            "api key": []
+            "apikey": []
           }
+        ],
+        "tags": [
+          "Disk Space"
         ]
       }
     },
-    "/status": {
+    "/system/status": {
       "get": {
-        "summary": "Get internal information",
-        "tags": [
-          "Status"
-        ],
+        "summary": "Get Application Status",
         "responses": {
           "200": {
             "description": "Successful request",
@@ -704,7 +692,7 @@
                       "sqliteVersion": "3.32.1",
                       "migrationVersion": 180,
                       "urlBase": "",
-                      "runtimeVersion": "3.1.7",
+                      "runtimeVersion": "3.1.10",
                       "runtimeName": "netCore",
                       "startTime": "2020-09-01T23:50:20.2415965Z",
                       "packageUpdateMechanism": "builtIn"
@@ -724,16 +712,20 @@
             "X-API-Key": []
           },
           {
-            "api key": []
+            "apikey": []
           }
         ],
         "description": "Find out information such as OS, version, paths used, etc",
-        "parameters": []
-      }
+        "parameters": [],
+        "tags": [
+          "System"
+        ]
+      },
+      "parameters": []
     },
     "/health": {
       "get": {
-        "summary": "Get Radarr's health information",
+        "summary": "Get Failed Health Checks",
         "tags": [
           "Health"
         ],
@@ -743,20 +735,9 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "source": {
-                      "type": "string"
-                    },
-                    "type": {
-                      "type": "string"
-                    },
-                    "message": {
-                      "type": "string"
-                    },
-                    "wikiUrl": {
-                      "type": "string"
-                    }
+                  "type": "array",
+                  "items": {
+                    "type": "object"
                   }
                 },
                 "examples": {
@@ -766,13 +747,13 @@
                         "source": "ImportMechanismCheck",
                         "type": "warning",
                         "message": "Enable Completed Download Handling",
-                        "wikiUrl": "https://github.com/Radarr/Radarr/wiki/Health-checks#enable-completed-download-handling"
+                        "wikiUrl": "https://wiki.servarr.com/Radarr_System#Completed.2FFailed_Download_Handling"
                       },
                       {
                         "source": "DownloadClientCheck",
                         "type": "error",
                         "message": "Unable to communicate with qBittorrent. Failed to connect to qBittorrent, check your settings.",
-                        "wikiUrl": "https://github.com/Radarr/Radarr/wiki/Health-checks#unable-to-communicate-with-download-client"
+                        "wikiUrl": "https://wiki.servarr.com/Radarr_System#Download_Clients"
                       }
                     ]
                   }
@@ -790,7 +771,7 @@
             "X-API-Key": []
           },
           {
-            "api key": []
+            "apikey": []
           }
         ],
         "description": "Query radarr for health information\n\nLocation: System > Status"
@@ -798,7 +779,7 @@
     },
     "/command": {
       "post": {
-        "summary": "command",
+        "summary": "Post a Command",
         "tags": [
           "Command"
         ],
@@ -847,7 +828,7 @@
     },
     "/update": {
       "get": {
-        "summary": "List of recent updates",
+        "summary": "Get Recent Updates",
         "tags": [
           "Update"
         ],
@@ -884,15 +865,18 @@
                       "type": "boolean"
                     },
                     "changes": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "new": {
-                            "type": "object"
-                          },
-                          "fixed": {
-                            "type": "object"
+                      "type": "object",
+                      "properties": {
+                        "new": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "fixed": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
                           }
                         }
                       }
@@ -939,14 +923,14 @@
             "X-API-Key": []
           },
           {
-            "api key": []
+            "apikey": []
           }
         ]
       }
     },
     "/qualityProfile": {
       "get": {
-        "summary": "Get Radarr's quality profiles",
+        "summary": "Get All Quality Profiles",
         "tags": [
           "Quality"
         ],
@@ -956,115 +940,12 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "name": {
-                      "type": "string"
-                    },
-                    "upgradeAllowed": {
-                      "type": "boolean"
-                    },
-                    "cutoff": {
-                      "type": "integer"
-                    },
-                    "preferredTags": {
-                      "type": "string"
-                    },
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "quality": {
-                          "type": "object",
-                          "properties": {
-                            "id": {
-                              "type": "integer"
-                            },
-                            "name": {
-                              "type": "string"
-                            },
-                            "source": {
-                              "type": "string"
-                            },
-                            "resolution": {
-                              "type": "integer"
-                            },
-                            "modifier": {
-                              "type": "string"
-                            }
-                          }
-                        },
-                        "items": {
-                          "type": "object"
-                        },
-                        "allowed": {
-                          "type": "boolean"
-                        }
-                      }
-                    },
-                    "id": {
-                      "type": "integer"
-                    },
-                    "minFormatScore": {
-                      "type": "integer"
-                    },
-                    "cutoffFormatScore": {
-                      "type": "integer"
-                    },
-                    "formatItems": {
-                      "type": "object",
-                      "properties": {
-                        "format": {
-                          "type": "integer"
-                        },
-                        "name": {
-                          "type": "string"
-                        },
-                        "score": {
-                          "type": "integer"
-                        }
-                      }
-                    },
-                    "language": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "id": {
-                            "type": "integer"
-                          },
-                          "name": {
-                            "type": "string"
-                          }
-                        }
-                      }
-                    }
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/QualityProfile"
                   }
                 },
-                "examples": {
-                  "Example": {
-                    "value": [
-                      {
-                        "name": "Any",
-                        "upgradeAllowed": true,
-                        "cutoff": 20,
-                        "preferredTags": "freeleach",
-                        "items": [
-                          {
-                            "quality": {
-                              "id": 0,
-                              "name": "Unknown",
-                              "source": "unknown",
-                              "resolution": 0,
-                              "modifier": "none"
-                            },
-                            "items": [],
-                            "allowed": true
-                          }
-                        ]
-                      }
-                    ]
-                  }
-                }
+                "examples": {}
               }
             }
           },
@@ -1079,7 +960,7 @@
             "X-API-Key": []
           },
           {
-            "api key": []
+            "apikey": []
           }
         ]
       },
@@ -1087,7 +968,7 @@
     },
     "/calendar": {
       "get": {
-        "summary": "Get Radarr's calendar events",
+        "summary": "Get Calendar Events",
         "tags": [
           "Calendar"
         ],
@@ -1106,7 +987,7 @@
             "X-API-Key": []
           },
           {
-            "api key": []
+            "apikey": []
           }
         ],
         "parameters": [
@@ -1141,7 +1022,7 @@
     },
     "/queue": {
       "get": {
-        "summary": "Get Radarr's queue items",
+        "summary": "Get Activity Queue",
         "tags": [
           "Queue"
         ],
@@ -1160,7 +1041,7 @@
             "X-API-Key": []
           },
           {
-            "api key": []
+            "apikey": []
           }
         ],
         "parameters": [
@@ -1214,10 +1095,7 @@
     },
     "/history": {
       "get": {
-        "summary": "Get Radarr's history items",
-        "tags": [
-          "History"
-        ],
+        "summary": "Get History",
         "responses": {
           "200": {
             "description": "Successful request",
@@ -1241,359 +1119,12 @@
                     "records": {
                       "type": "array",
                       "items": {
-                        "type": "object",
-                        "properties": {
-                          "movieId": {
-                            "type": "integer"
-                          },
-                          "sourceTitle": {
-                            "type": "string"
-                          },
-                          "languages": {
-                            "type": [
-                              "string",
-                              "array"
-                            ],
-                            "items": {
-                              "type": "object",
-                              "properties": {
-                                "id": {
-                                  "type": "integer"
-                                },
-                                "name": {
-                                  "type": "string"
-                                }
-                              }
-                            }
-                          },
-                          "quality": {
-                            "type": "array",
-                            "items": {
-                              "type": "object",
-                              "properties": {
-                                "quality": {
-                                  "type": "array",
-                                  "items": {
-                                    "type": "object",
-                                    "properties": {
-                                      "id": {
-                                        "type": "integer"
-                                      },
-                                      "name": {
-                                        "type": "string"
-                                      },
-                                      "source": {
-                                        "type": "string"
-                                      },
-                                      "resolution": {
-                                        "type": "integer"
-                                      },
-                                      "modifier": {
-                                        "type": "string"
-                                      }
-                                    }
-                                  }
-                                },
-                                "revision": {
-                                  "type": "array",
-                                  "items": {
-                                    "type": "object",
-                                    "properties": {
-                                      "version": {
-                                        "type": "integer"
-                                      },
-                                      "real": {
-                                        "type": "integer"
-                                      },
-                                      "isRepack": {
-                                        "type": "boolean"
-                                      }
-                                    }
-                                  }
-                                }
-                              }
-                            }
-                          },
-                          "customFormats": {
-                            "type": "array",
-                            "items": {
-                              "type": "object",
-                              "properties": {
-                                "id": {
-                                  "type": "integer"
-                                },
-                                "name": {
-                                  "type": "string"
-                                },
-                                "includeCustomFormatWhenRenaming": {
-                                  "type": "boolean"
-                                },
-                                "specifications": {
-                                  "type": "array",
-                                  "items": {
-                                    "type": "object",
-                                    "properties": {
-                                      "name": {
-                                        "type": "string"
-                                      },
-                                      "implementation": {
-                                        "type": "string"
-                                      },
-                                      "implementationName": {
-                                        "type": "string"
-                                      },
-                                      "infoLink": {
-                                        "type": "string"
-                                      },
-                                      "negate": {
-                                        "type": "boolean"
-                                      },
-                                      "required": {
-                                        "type": "boolean"
-                                      },
-                                      "fields": {
-                                        "type": "array",
-                                        "items": {
-                                          "type": "object",
-                                          "properties": {
-                                            "order": {
-                                              "type": "integer"
-                                            },
-                                            "name": {
-                                              "type": "string"
-                                            },
-                                            "label": {
-                                              "type": "string"
-                                            },
-                                            "value": {
-                                              "type": "integer"
-                                            },
-                                            "type": {
-                                              "type": "string"
-                                            },
-                                            "advanced": {
-                                              "type": "boolean"
-                                            },
-                                            "selectOptions": {
-                                              "type": "array",
-                                              "items": {
-                                                "type": "object",
-                                                "properties": {
-                                                  "value": {
-                                                    "type": "integer"
-                                                  },
-                                                  "name": {
-                                                    "type": "string"
-                                                  }
-                                                }
-                                              }
-                                            }
-                                          }
-                                        }
-                                      }
-                                    }
-                                  }
-                                }
-                              }
-                            }
-                          },
-                          "qualityCutoffNotMet": {
-                            "type": "boolean"
-                          },
-                          "date": {
-                            "type": "string",
-                            "description": "ISO 8601"
-                          },
-                          "eventType": {
-                            "type": "string"
-                          },
-                          "data": {
-                            "type": "array",
-                            "items": {
-                              "type": "object",
-                              "properties": {
-                                "reason": {
-                                  "type": "string"
-                                }
-                              }
-                            }
-                          },
-                          "id": {
-                            "type": "integer"
-                          }
-                        }
+                        "$ref": "#/components/schemas/History"
                       }
                     }
                   }
                 },
-                "examples": {
-                  "Example": {
-                    "value": {
-                      "page": 1,
-                      "pageSize": 20,
-                      "sortKey": "date",
-                      "sortDirection": "descending",
-                      "totalRecords": 1998,
-                      "records": [
-                        {
-                          "movieId": 884,
-                          "sourceTitle": "D:\\Plex\\Movies\\Dolittle (2019)\\Dolittle (2019) WEBDL-1080p.mkv",
-                          "languages": [
-                            {
-                              "id": 1,
-                              "name": "English"
-                            }
-                          ],
-                          "quality": {
-                            "quality": {
-                              "id": 3,
-                              "name": "WEBDL-1080p",
-                              "source": "webdl",
-                              "resolution": 1080,
-                              "modifier": "none"
-                            },
-                            "revision": {
-                              "version": 1,
-                              "real": 0,
-                              "isRepack": false
-                            }
-                          },
-                          "customFormats": [
-                            {
-                              "id": 1,
-                              "name": "WebDL",
-                              "includeCustomFormatWhenRenaming": false,
-                              "specifications": [
-                                {
-                                  "name": "WebDL",
-                                  "implementation": "SourceSpecification",
-                                  "implementationName": "Source",
-                                  "infoLink": "https://github.com/Radarr/Radarr/wiki/Custom-Formats-Aphrodite",
-                                  "negate": false,
-                                  "required": false,
-                                  "fields": [
-                                    {
-                                      "order": 0,
-                                      "name": "value",
-                                      "label": "Source",
-                                      "value": 7,
-                                      "type": "select",
-                                      "advanced": false,
-                                      "selectOptions": [
-                                        {
-                                          "value": 0,
-                                          "name": "UNKNOWN"
-                                        },
-                                        {
-                                          "value": 1,
-                                          "name": "CAM"
-                                        },
-                                        {
-                                          "value": 2,
-                                          "name": "TELESYNC"
-                                        },
-                                        {
-                                          "value": 3,
-                                          "name": "TELECINE"
-                                        },
-                                        {
-                                          "value": 4,
-                                          "name": "WORKPRINT"
-                                        },
-                                        {
-                                          "value": 5,
-                                          "name": "DVD"
-                                        },
-                                        {
-                                          "value": 6,
-                                          "name": "TV"
-                                        },
-                                        {
-                                          "value": 7,
-                                          "name": "WEBDL"
-                                        },
-                                        {
-                                          "value": 8,
-                                          "name": "WEBRIP"
-                                        },
-                                        {
-                                          "value": 9,
-                                          "name": "BLURAY"
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                }
-                              ]
-                            },
-                            {
-                              "id": 2,
-                              "name": "1080",
-                              "includeCustomFormatWhenRenaming": false,
-                              "specifications": [
-                                {
-                                  "name": "1080",
-                                  "implementation": "ResolutionSpecification",
-                                  "implementationName": "Resolution",
-                                  "infoLink": "https://github.com/Radarr/Radarr/wiki/Custom-Formats-Aphrodite",
-                                  "negate": false,
-                                  "required": false,
-                                  "fields": [
-                                    {
-                                      "order": 0,
-                                      "name": "value",
-                                      "label": "Resolution",
-                                      "value": 1080,
-                                      "type": "select",
-                                      "advanced": false,
-                                      "selectOptions": [
-                                        {
-                                          "value": 0,
-                                          "name": "Unknown"
-                                        },
-                                        {
-                                          "value": 360,
-                                          "name": "R360p"
-                                        },
-                                        {
-                                          "value": 480,
-                                          "name": "R480p"
-                                        },
-                                        {
-                                          "value": 576,
-                                          "name": "R576p"
-                                        },
-                                        {
-                                          "value": 720,
-                                          "name": "R720p"
-                                        },
-                                        {
-                                          "value": 1080,
-                                          "name": "R1080p"
-                                        },
-                                        {
-                                          "value": 2160,
-                                          "name": "R2160p"
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                }
-                              ]
-                            }
-                          ],
-                          "qualityCutoffNotMet": true,
-                          "date": "2020-08-30T00:09:52.3299253Z",
-                          "eventType": "movieFileDeleted",
-                          "data": {
-                            "reason": "MissingFromDisk"
-                          },
-                          "id": 2107
-                        }
-                      ]
-                    }
-                  }
-                }
+                "examples": {}
               }
             }
           },
@@ -1608,7 +1139,7 @@
             "X-API-Key": []
           },
           {
-            "api key": []
+            "apikey": []
           }
         ],
         "parameters": [
@@ -1648,12 +1179,15 @@
             "description": "date",
             "required": true
           }
+        ],
+        "tags": [
+          "History"
         ]
       }
     },
-    "/customFilter": {
+    "/customfilter": {
       "get": {
-        "summary": "Get Radarr's custom filters",
+        "summary": "Get UI Custom Filters",
         "tags": [
           "Custom Filters"
         ],
@@ -1663,42 +1197,58 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "type": {
-                      "type": "string"
-                    },
-                    "label": {
-                      "type": "string"
-                    },
-                    "Radarr's ": {
-                      "type": "object",
-                      "properties": {
-                        "key": {
-                          "type": "string"
-                        },
-                        "value": {
-                          "type": "array",
-                          "items": {
-                            "type": "object",
-                            "properties": {
-                              "time": {
+                  "type": "array",
+                  "description": "",
+                  "minItems": 1,
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "label": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "filters": {
+                        "type": "array",
+                        "uniqueItems": true,
+                        "minItems": 1,
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "key": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "value": {
+                              "type": "array",
+                              "items": {
                                 "type": "string"
-                              },
-                              "value": {
-                                "type": "integer"
                               }
+                            },
+                            "type": {
+                              "type": "string"
                             }
-                          }
-                        },
-                        "type": {
-                          "type": "string"
+                          },
+                          "required": [
+                            "key",
+                            "type"
+                          ]
                         }
+                      },
+                      "id": {
+                        "type": "integer"
                       }
                     },
-                    "id": {
-                      "type": "integer"
-                    }
+                    "required": [
+                      "type",
+                      "label",
+                      "filters",
+                      "id"
+                    ]
                   }
                 },
                 "examples": {
@@ -1706,18 +1256,17 @@
                     "value": [
                       {
                         "type": "movieIndex",
-                        "label": "not in last",
+                        "label": "Rated G",
                         "filters": [
                           {
-                            "key": "inCinemas",
-                            "value": {
-                              "time": "months",
-                              "value": 12
-                            },
-                            "type": "notInLast"
+                            "key": "certification",
+                            "value": [
+                              "G"
+                            ],
+                            "type": "equal"
                           }
                         ],
-                        "id": 2
+                        "id": 10
                       }
                     ]
                   }
@@ -1736,99 +1285,24 @@
             "X-API-Key": []
           },
           {
-            "api key": []
+            "apikey": []
           }
         ]
-      }
+      },
+      "parameters": []
     },
-    "/importList": {
+    "/importlist": {
       "get": {
-        "summary": "Get import list information",
-        "tags": [
-          "Import"
-        ],
+        "summary": "Get All Import Lists",
         "responses": {
           "200": {
-            "description": "Succesful response ",
+            "description": "Successful response",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "enabled": {
-                      "type": "boolean"
-                    },
-                    "enableAuto": {
-                      "type": "boolean"
-                    },
-                    "shouldMonitor": {
-                      "type": "boolean"
-                    },
-                    "rootFolderPath": {
-                      "type": "string"
-                    },
-                    "qualityProfile": {
-                      "type": "integer"
-                    },
-                    "searchOnAdd": {
-                      "type": "boolean"
-                    },
-                    "minimumAvailability": {
-                      "type": "string"
-                    },
-                    "listType": {
-                      "type": "string"
-                    },
-                    "listOrder": {
-                      "type": "integer"
-                    },
-                    "name": {
-                      "type": "string"
-                    },
-                    "fields": {
-                      "type": "object",
-                      "properties": {
-                        "order": {
-                          "type": "integer"
-                        },
-                        "name": {
-                          "type": "string"
-                        },
-                        "label": {
-                          "type": "string"
-                        },
-                        "helpText": {
-                          "type": "string"
-                        },
-                        "value": {
-                          "type": "string"
-                        },
-                        "type": {
-                          "type": "string"
-                        },
-                        "advanced": {
-                          "type": "boolean"
-                        }
-                      }
-                    },
-                    "implementationName": {
-                      "type": "string"
-                    },
-                    "implementation": {
-                      "type": "string"
-                    },
-                    "configContract": {
-                      "type": "string"
-                    },
-                    "infoLink": {
-                      "type": "string"
-                    },
-                    "tags": {
-                      "type": "object"
-                    },
-                    "id": {
-                      "type": "integer"
-                    }
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ImportList"
                   }
                 },
                 "examples": {
@@ -1859,7 +1333,7 @@
                         "implementationName": "IMDb Lists",
                         "implementation": "IMDbListImport",
                         "configContract": "IMDbListSettings",
-                        "infoLink": "https://github.com/Radarr/Radarr/wiki/Supported-ImportLists#imdblistimport",
+                        "infoLink": "https://wiki.servarr.com/Radarr_Settings#Lists",
                         "tags": [
                           2
                         ],
@@ -1882,17 +1356,18 @@
             "X-API-Key": []
           },
           {
-            "api key": []
+            "apikey": []
           }
-        ]
-      }
-    },
-    "/ui": {
-      "get": {
-        "summary": "Get UI settings",
-        "tags": [
-          "UI"
         ],
+        "tags": [
+          "Import Lists"
+        ]
+      },
+      "parameters": []
+    },
+    "/config/ui": {
+      "get": {
+        "summary": "Get UI Settings",
         "responses": {
           "200": {
             "description": "Successful request",
@@ -1963,14 +1438,104 @@
             "X-API-Key": []
           },
           {
-            "api key": []
+            "apikey": []
+          }
+        ],
+        "tags": [
+          "Settings"
+        ]
+      },
+      "parameters": [],
+      "put": {
+        "summary": "Edit UI Settings",
+        "operationId": "putconfig-ui",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                }
+              }
+            }
+          }
+        },
+        "description": "Edit one or many UI settings and save to to the database",
+        "tags": [
+          "Settings"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "",
+                "type": "object",
+                "properties": {
+                  "firstDayOfWeek": {
+                    "type": "integer"
+                  },
+                  "calendarWeekColumnHeader": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "movieRuntimeFormat": {
+                    "type": "string",
+                    "minLength": 1,
+                    "enum": [
+                      "hoursMinutes",
+                      "minutes"
+                    ]
+                  },
+                  "shortDateFormat": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "longDateFormat": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "timeFormat": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "showRelativeDates": {
+                    "type": "boolean"
+                  },
+                  "enableColorImpairedMode": {
+                    "type": "boolean"
+                  },
+                  "movieInfoLanguage": {
+                    "type": "number"
+                  },
+                  "id": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "id"
+                ]
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "X-API-Key": []
+          },
+          {
+            "apikey": []
           }
         ]
       }
     },
     "/remotePathMapping": {
       "get": {
-        "summary": "Get Radarr's remote path mappings",
+        "summary": "Get All Remote Path Mappings",
         "tags": [
           "Remote Path Mapping"
         ],
@@ -1980,20 +1545,35 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "host": {
-                      "type": "string"
+                  "type": "array",
+                  "description": "",
+                  "minItems": 1,
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "host": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "remotePath": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "localPath": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "id": {
+                        "type": "integer"
+                      }
                     },
-                    "remotePath": {
-                      "type": "string"
-                    },
-                    "localPath": {
-                      "type": "string"
-                    },
-                    "id": {
-                      "type": "integer"
-                    }
+                    "required": [
+                      "host",
+                      "remotePath",
+                      "localPath",
+                      "id"
+                    ]
                   }
                 },
                 "examples": {
@@ -2028,20 +1608,30 @@
             "X-API-Key": []
           },
           {
-            "api key": []
+            "apikey": []
           }
         ]
       }
     },
-    "/downloadClient": {
+    "/downloadclient": {
       "get": {
-        "summary": "Get Radarr's download client list",
+        "summary": "Get All Download Clients",
         "tags": [
           "Download Client"
         ],
         "responses": {
           "200": {
-            "description": "Successful request"
+            "description": "Successful request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DownloadClient"
+                  }
+                }
+              }
+            }
           },
           "401": {
             "description": "Invalid API Key"
@@ -2054,14 +1644,15 @@
             "X-API-Key": []
           },
           {
-            "api key": []
+            "apikey": []
           }
         ]
-      }
+      },
+      "parameters": []
     },
-    "/blackList": {
+    "/blacklist": {
       "get": {
-        "summary": "Get Radarr's blacklisted movies",
+        "summary": "Get Blacklisted Releases",
         "tags": [
           "Blacklist"
         ],
@@ -2095,7 +1686,7 @@
                     "records": {
                       "type": "array",
                       "items": {
-                        "type": "object"
+                        "$ref": "#/components/schemas/Blacklist"
                       }
                     }
                   },
@@ -2114,13 +1705,10 @@
           }
         },
         "operationId": "get-blackList",
-        "description": "",
+        "description": "Returns blacklisted releases",
         "security": [
           {
             "X-API-Key": []
-          },
-          {
-            "api key": []
           }
         ],
         "parameters": [
@@ -2163,7 +1751,7 @@
         ]
       },
       "delete": {
-        "summary": "Remove a blacklisted movie",
+        "summary": "Delete a Blacklisted Release",
         "operationId": "delete-blackList",
         "responses": {
           "200": {
@@ -2173,10 +1761,13 @@
             "description": "Invalid API Key"
           }
         },
-        "description": "Removes a specific movie (the id provided) from the blacklist",
+        "description": "Removes a specific release (the id provided) from the blacklist",
         "security": [
           {
             "X-API-Key": []
+          },
+          {
+            "apikey": []
           }
         ],
         "parameters": [
@@ -2188,9 +1779,1920 @@
             "name": "id",
             "required": true
           }
+        ],
+        "tags": [
+          "Blacklist"
         ]
       },
       "parameters": []
+    },
+    "/blacklist/movie": {
+      "get": {
+        "summary": "Get Blacklisted Releases for a Movie",
+        "tags": [
+          "Blacklist"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Blacklist"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "operationId": "get-blacklist-movie",
+        "description": "Retrieves blacklisted releases that are tied to a given movie in the database",
+        "parameters": [
+          {
+            "schema": {
+              "type": "integer"
+            },
+            "in": "query",
+            "name": "movieId",
+            "description": "Database Id for the movie ",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "X-API-Key": []
+          },
+          {
+            "apikey": []
+          }
+        ]
+      }
+    },
+    "/blacklist/bulk": {
+      "delete": {
+        "summary": "Delete Blacklisted Releases",
+        "operationId": "delete-blacklist-bulk",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "description": "Delete blacklisted releases in bulk",
+        "security": [
+          {
+            "X-API-Key": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "",
+                "type": "object",
+                "properties": {
+                  "ids": {
+                    "type": "array",
+                    "description": "Database ids of the blacklist items to delete",
+                    "items": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "required": [
+                  "ids"
+                ]
+              },
+              "examples": {}
+            }
+          }
+        },
+        "tags": [
+          "Blacklist"
+        ]
+      }
+    },
+    "/indexer": {
+      "get": {
+        "summary": "Get All Indexers",
+        "tags": [
+          "Indexer"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "description": "",
+                  "minItems": 1,
+                  "uniqueItems": true,
+                  "items": {
+                    "$ref": "#/components/schemas/Indexer"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "",
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "operationId": "get-indexer",
+        "security": [
+          {
+            "X-API-Key": []
+          },
+          {
+            "apikey": []
+          }
+        ],
+        "description": "Get all indexers"
+      }
+    },
+    "/indexer/{id}": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "integer"
+          },
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "Database Id of the indexer"
+        }
+      ],
+      "get": {
+        "summary": "Get an Indexer",
+        "tags": [
+          "Indexer"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Indexer"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "operationId": "get-indexer-id",
+        "description": "Get Indexer by its database Id",
+        "parameters": [],
+        "security": [
+          {
+            "X-API-Key": []
+          },
+          {
+            "apikey": []
+          }
+        ]
+      },
+      "put": {
+        "summary": "Edit an Indexer",
+        "operationId": "put-indexer-id",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "X-API-Key": []
+          },
+          {
+            "apikey": []
+          }
+        ],
+        "tags": [
+          "Indexer"
+        ]
+      },
+      "delete": {
+        "summary": "Delete an Indexer",
+        "operationId": "delete-indexer-id",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "description": "Delete Indexer by database id",
+        "security": [
+          {
+            "X-API-Key": []
+          },
+          {
+            "apikey": []
+          }
+        ],
+        "tags": [
+          "Indexer"
+        ]
+      }
+    },
+    "/downloadclient/{id}": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "integer"
+          },
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "Database id of the download client"
+        }
+      ],
+      "get": {
+        "summary": "Get a Download Client",
+        "tags": [
+          "Download Client"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DownloadClient"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "operationId": "get-downloadclient-id",
+        "description": "Get a single download client by database id",
+        "security": [
+          {
+            "X-API-Key": []
+          },
+          {
+            "apikey": []
+          }
+        ]
+      },
+      "delete": {
+        "summary": "Delete a Download Client",
+        "operationId": "delete-downloadclient-id",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "description": "Delete a download client by database id",
+        "security": [
+          {
+            "X-API-Key": []
+          }
+        ],
+        "tags": [
+          "Download Client"
+        ]
+      },
+      "put": {
+        "summary": "Edit a Download Client",
+        "operationId": "put-downloadclient-id",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "X-API-Key": []
+          },
+          {
+            "apikey": []
+          }
+        ],
+        "description": "Edit a downloadclient by database id",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DownloadClient"
+              }
+            }
+          },
+          "description": ""
+        },
+        "tags": [
+          "Download Client"
+        ]
+      }
+    },
+    "/notification": {
+      "get": {
+        "summary": "Get All Notifications",
+        "tags": [
+          "Notification"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Notification"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "operationId": "get-notifications",
+        "description": "Get all notifications",
+        "security": [
+          {
+            "X-API-Key": []
+          },
+          {
+            "apikey": []
+          }
+        ]
+      },
+      "parameters": []
+    },
+    "/notification/{id}": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "integer"
+          },
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "Database id of notification"
+        }
+      ],
+      "get": {
+        "summary": "Get a Notification",
+        "tags": [
+          "Notification"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Notification"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "operationId": "get-notification-id",
+        "security": [
+          {
+            "X-API-Key": []
+          },
+          {
+            "apikey": []
+          }
+        ],
+        "description": "Get Notification by database id"
+      },
+      "delete": {
+        "summary": "Delete a Notification",
+        "operationId": "delete-notification-id",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "X-API-Key": []
+          },
+          {
+            "apikey": []
+          }
+        ],
+        "description": "Delete Notification by database id",
+        "tags": [
+          "Notification"
+        ]
+      },
+      "put": {
+        "summary": "Edit a Notification",
+        "operationId": "put-notification-id",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "X-API-Key": []
+          },
+          {
+            "apikey": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Notification"
+              }
+            }
+          }
+        },
+        "description": "Edit Notification by database id",
+        "tags": [
+          "Notification"
+        ]
+      }
+    },
+    "/metadata": {
+      "get": {
+        "summary": "Get All Metadata",
+        "tags": [
+          "Metadata"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Metadata"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "operationId": "get-metadata",
+        "description": "Get all metadata consumer settings",
+        "security": [
+          {
+            "X-API-Key": []
+          },
+          {
+            "apikey": []
+          }
+        ]
+      }
+    },
+    "/movie/lookup": {
+      "get": {
+        "summary": "Lookup a Movie to Add",
+        "tags": [
+          "Movie"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Movie"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "operationId": "get-movie-lookup",
+        "description": "Search for a movie to add to the database (Uses TMDB for search results)",
+        "security": [
+          {
+            "X-API-Key": []
+          },
+          {
+            "apikey": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "term",
+            "description": "search term to use for lookup",
+            "required": true
+          }
+        ]
+      }
+    },
+    "/history/movie": {
+      "get": {
+        "summary": "Get History for a Movie",
+        "tags": [
+          "History"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/History"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "operationId": "get-history-movie",
+        "description": "Get history for a given movie in database by its database id",
+        "parameters": [
+          {
+            "schema": {
+              "type": "integer"
+            },
+            "in": "query",
+            "name": "movieId",
+            "description": "database id of movie",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "integer"
+            },
+            "in": "query",
+            "name": "eventType",
+            "description": "history event type to retrieve"
+          }
+        ],
+        "security": [
+          {
+            "X-API-Key": []
+          },
+          {
+            "apikey": []
+          }
+        ]
+      }
+    },
+    "/movie/editor": {
+      "put": {
+        "summary": "Edit Multiple Movies",
+        "operationId": "put-movie-editor",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Movie"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "description": "Editor endpoint is used by the movie editor in Radarr. The Edit operation allows to edit properties of multiple movies at once",
+        "security": [
+          {
+            "X-API-Key": []
+          },
+          {
+            "apikey": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "movieIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    }
+                  },
+                  "monitored": {
+                    "type": "boolean"
+                  },
+                  "qualityProfileId": {
+                    "type": "integer"
+                  },
+                  "minimumAvailability": {
+                    "type": "string"
+                  },
+                  "rootFolderPath": {
+                    "type": "string"
+                  },
+                  "tags": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    }
+                  },
+                  "applyTags": {
+                    "type": "string",
+                    "enum": [
+                      "add",
+                      "remove",
+                      "replace"
+                    ]
+                  },
+                  "moveFiles": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "movieIds"
+                ]
+              }
+            }
+          }
+        },
+        "tags": [
+          "Movie"
+        ]
+      },
+      "delete": {
+        "summary": "Delete Multiple Movies",
+        "operationId": "delete-movie-editor",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "description": "Editor endpoint is used by the movie editor in Radarr. The Delete operation allows mass deletion of movies (and optionally files).",
+        "security": [
+          {
+            "X-API-Key": []
+          },
+          {
+            "apikey": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "movieIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    }
+                  },
+                  "deleteFIles": {
+                    "type": "boolean"
+                  },
+                  "addImportExclusion": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "movieIds",
+                  "deleteFIles",
+                  "addImportExclusion"
+                ]
+              }
+            }
+          }
+        },
+        "tags": [
+          "Movie"
+        ]
+      }
+    },
+    "/movie/import": {
+      "post": {
+        "summary": "Add Movies From Folders",
+        "operationId": "post-movie-import",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Movie"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "description": "The movie import endpoint is used by the bulk import view in Radarr UI. It allows movies to be bulk added to the Radarr database.",
+        "security": [
+          {
+            "X-API-Key": []
+          },
+          {
+            "apikey": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Movie"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Movie"
+        ]
+      }
+    },
+    "/moviefile": {
+      "get": {
+        "summary": "Get Multiple MovieFiles",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MovieFile"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "operationId": "get-moviefile",
+        "description": "The moviefile endpoint allows for retrieval of all moviefile by a list of ids or by the associated movieid. Either the moviefileids OR movieid query parameter must be passed.",
+        "security": [
+          {
+            "X-API-Key": []
+          },
+          {
+            "apikey": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "array"
+            },
+            "in": "query",
+            "name": "moviefileids",
+            "description": "Comma separated list of moviefile ids",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "movieid",
+            "description": "Database id of movie to retrieve files for",
+            "required": true
+          }
+        ],
+        "tags": [
+          "MovieFile"
+        ]
+      }
+    },
+    "/moviefile/{id}": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "id",
+          "in": "path",
+          "required": true
+        }
+      ],
+      "get": {
+        "summary": "Get a MovieFile",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MovieFile"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "operationId": "get-moviefile-id",
+        "security": [
+          {
+            "X-API-Key": []
+          },
+          {
+            "apikey": []
+          }
+        ],
+        "description": "Get a movie file object by its database id.",
+        "tags": [
+          "MovieFile"
+        ]
+      },
+      "delete": {
+        "summary": "Delete a Movie",
+        "operationId": "delete-moviefile-id",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "description": "Allows for deletion of a moviefile by its database id.",
+        "security": [
+          {
+            "X-API-Key": []
+          },
+          {
+            "apikey": []
+          }
+        ],
+        "tags": [
+          "MovieFile"
+        ]
+      }
+    },
+    "/importlist/{id}": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "id",
+          "in": "path",
+          "required": true
+        }
+      ],
+      "get": {
+        "summary": "Get an Import List",
+        "tags": [
+          "Import Lists"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportList"
+                }
+              }
+            }
+          }
+        },
+        "operationId": "get-importlist-id",
+        "description": "",
+        "security": [
+          {
+            "X-API-Key": []
+          },
+          {
+            "apikey": []
+          }
+        ]
+      },
+      "put": {
+        "summary": "Edit an Import List",
+        "operationId": "put-importlist-id",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "X-API-Key": []
+          },
+          {
+            "apikey": []
+          }
+        ],
+        "tags": [
+          "Import Lists"
+        ]
+      },
+      "delete": {
+        "summary": "Delete an Import List",
+        "operationId": "delete-importlist-id",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "description": "",
+        "security": [
+          {
+            "X-API-Key": []
+          },
+          {
+            "apikey": []
+          }
+        ],
+        "tags": [
+          "Import Lists"
+        ]
+      }
+    },
+    "/config/host": {
+      "get": {
+        "summary": "Get Host Settings",
+        "tags": [
+          "Settings"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "",
+                  "type": "object",
+                  "properties": {
+                    "bindAddress": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "port": {
+                      "type": "integer"
+                    },
+                    "sslPort": {
+                      "type": "integer"
+                    },
+                    "enableSsl": {
+                      "type": "boolean"
+                    },
+                    "launchBrowser": {
+                      "type": "boolean"
+                    },
+                    "authenticationMethod": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "analyticsEnabled": {
+                      "type": "boolean"
+                    },
+                    "username": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "password": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "logLevel": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "consoleLogLevel": {
+                      "type": "string"
+                    },
+                    "branch": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "apiKey": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "sslCertPath": {
+                      "type": "string"
+                    },
+                    "sslCertPassword": {
+                      "type": "string"
+                    },
+                    "urlBase": {
+                      "type": "string"
+                    },
+                    "updateAutomatically": {
+                      "type": "boolean"
+                    },
+                    "updateMechanism": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "updateScriptPath": {
+                      "type": "string"
+                    },
+                    "proxyEnabled": {
+                      "type": "boolean"
+                    },
+                    "proxyType": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "proxyHostname": {
+                      "type": "string"
+                    },
+                    "proxyPort": {
+                      "type": "integer"
+                    },
+                    "proxyUsername": {
+                      "type": "string"
+                    },
+                    "proxyPassword": {
+                      "type": "string"
+                    },
+                    "proxyBypassFilter": {
+                      "type": "string"
+                    },
+                    "proxyBypassLocalAddresses": {
+                      "type": "boolean"
+                    },
+                    "certificateValidation": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "backupFolder": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "backupInterval": {
+                      "type": "integer"
+                    },
+                    "backupRetention": {
+                      "type": "integer"
+                    },
+                    "id": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "bindAddress",
+                    "port",
+                    "sslPort",
+                    "enableSsl",
+                    "launchBrowser",
+                    "authenticationMethod",
+                    "analyticsEnabled",
+                    "username",
+                    "password",
+                    "logLevel",
+                    "consoleLogLevel",
+                    "branch",
+                    "apiKey",
+                    "sslCertPath",
+                    "sslCertPassword",
+                    "urlBase",
+                    "updateAutomatically",
+                    "updateMechanism",
+                    "updateScriptPath",
+                    "proxyEnabled",
+                    "proxyType",
+                    "proxyHostname",
+                    "proxyPort",
+                    "proxyUsername",
+                    "proxyPassword",
+                    "proxyBypassFilter",
+                    "proxyBypassLocalAddresses",
+                    "certificateValidation",
+                    "backupFolder",
+                    "backupInterval",
+                    "backupRetention",
+                    "id"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "operationId": "get-config-host",
+        "security": [
+          {
+            "X-API-Key": []
+          },
+          {
+            "apikey": []
+          }
+        ],
+        "description": "Get General/Host settings for Radarr."
+      },
+      "put": {
+        "summary": "Edit Host Settings",
+        "operationId": "put-config-host",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "description": "Edit General/Host settings for Radarr.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "",
+                "type": "object",
+                "properties": {
+                  "bindAddress": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "port": {
+                    "type": "number"
+                  },
+                  "sslPort": {
+                    "type": "number"
+                  },
+                  "enableSsl": {
+                    "type": "boolean"
+                  },
+                  "launchBrowser": {
+                    "type": "boolean"
+                  },
+                  "authenticationMethod": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "analyticsEnabled": {
+                    "type": "boolean"
+                  },
+                  "username": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "password": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "logLevel": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "consoleLogLevel": {
+                    "type": "string"
+                  },
+                  "branch": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "apiKey": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "sslCertPath": {
+                    "type": "string"
+                  },
+                  "sslCertPassword": {
+                    "type": "string"
+                  },
+                  "urlBase": {
+                    "type": "string"
+                  },
+                  "updateAutomatically": {
+                    "type": "boolean"
+                  },
+                  "updateMechanism": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "updateScriptPath": {
+                    "type": "string"
+                  },
+                  "proxyEnabled": {
+                    "type": "boolean"
+                  },
+                  "proxyType": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "proxyHostname": {
+                    "type": "string"
+                  },
+                  "proxyPort": {
+                    "type": "number"
+                  },
+                  "proxyUsername": {
+                    "type": "string"
+                  },
+                  "proxyPassword": {
+                    "type": "string"
+                  },
+                  "proxyBypassFilter": {
+                    "type": "string"
+                  },
+                  "proxyBypassLocalAddresses": {
+                    "type": "boolean"
+                  },
+                  "certificateValidation": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "backupFolder": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "backupInterval": {
+                    "type": "number"
+                  },
+                  "backupRetention": {
+                    "type": "number"
+                  },
+                  "id": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "bindAddress",
+                  "port",
+                  "sslPort",
+                  "enableSsl",
+                  "launchBrowser",
+                  "authenticationMethod",
+                  "analyticsEnabled",
+                  "username",
+                  "password",
+                  "logLevel",
+                  "consoleLogLevel",
+                  "branch",
+                  "apiKey",
+                  "sslCertPath",
+                  "sslCertPassword",
+                  "urlBase",
+                  "updateAutomatically",
+                  "updateMechanism",
+                  "updateScriptPath",
+                  "proxyEnabled",
+                  "proxyType",
+                  "proxyHostname",
+                  "proxyPort",
+                  "proxyUsername",
+                  "proxyPassword",
+                  "proxyBypassFilter",
+                  "proxyBypassLocalAddresses",
+                  "certificateValidation",
+                  "backupFolder",
+                  "backupInterval",
+                  "backupRetention",
+                  "id"
+                ]
+              }
+            }
+          },
+          "description": ""
+        },
+        "tags": [
+          "Settings"
+        ],
+        "security": [
+          {
+            "X-API-Key": []
+          },
+          {
+            "apikey": []
+          }
+        ]
+      }
+    },
+    "/config/naming": {
+      "get": {
+        "summary": "Get Naming Settings",
+        "tags": [
+          "Settings"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "",
+                  "type": "object",
+                  "properties": {
+                    "renameMovies": {
+                      "type": "boolean"
+                    },
+                    "replaceIllegalCharacters": {
+                      "type": "boolean"
+                    },
+                    "colonReplacementFormat": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "standardMovieFormat": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "movieFolderFormat": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "includeQuality": {
+                      "type": "boolean"
+                    },
+                    "replaceSpaces": {
+                      "type": "boolean"
+                    },
+                    "id": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "renameMovies",
+                    "replaceIllegalCharacters",
+                    "colonReplacementFormat",
+                    "standardMovieFormat",
+                    "movieFolderFormat",
+                    "includeQuality",
+                    "replaceSpaces",
+                    "id"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "operationId": "get-config-naming",
+        "description": "Get Settings for movie file and folder naming.",
+        "security": [
+          {
+            "X-API-Key": []
+          },
+          {
+            "apikey": []
+          }
+        ]
+      },
+      "put": {
+        "summary": "Edit Naming Settings",
+        "operationId": "put-config-naming",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "tags": [
+          "Settings"
+        ],
+        "description": "Edit Settings for movie file and folder naming.",
+        "security": [
+          {
+            "X-API-Key": []
+          },
+          {
+            "apikey": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "",
+                "type": "object",
+                "properties": {
+                  "renameMovies": {
+                    "type": "boolean"
+                  },
+                  "replaceIllegalCharacters": {
+                    "type": "boolean"
+                  },
+                  "colonReplacementFormat": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "standardMovieFormat": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "movieFolderFormat": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "includeQuality": {
+                    "type": "boolean"
+                  },
+                  "replaceSpaces": {
+                    "type": "boolean"
+                  },
+                  "id": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "renameMovies",
+                  "replaceIllegalCharacters",
+                  "colonReplacementFormat",
+                  "standardMovieFormat",
+                  "movieFolderFormat",
+                  "includeQuality",
+                  "replaceSpaces",
+                  "id"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/queue/{id}": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "id",
+          "in": "path",
+          "required": true
+        }
+      ],
+      "delete": {
+        "summary": "Remove Item from Queue",
+        "operationId": "delete-queue-id",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Invalid API Key"
+          }
+        },
+        "description": "Remove an item from the queue and optionally blacklist it",
+        "security": [
+          {
+            "X-API-Key": []
+          },
+          {
+            "apikey": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "boolean"
+            },
+            "in": "query",
+            "name": "removeFromClient"
+          },
+          {
+            "schema": {
+              "type": "boolean"
+            },
+            "in": "query",
+            "name": "blacklist"
+          }
+        ],
+        "tags": [
+          "Queue"
+        ]
+      }
+    },
+    "/queue/bulk": {
+      "delete": {
+        "summary": "Remove Items from Queue",
+        "operationId": "delete-queue-bulk",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Invalid API Key"
+          }
+        },
+        "security": [
+          {
+            "X-API-Key": []
+          },
+          {
+            "apikey": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "boolean"
+            },
+            "in": "query",
+            "name": "removeFromClient"
+          },
+          {
+            "schema": {
+              "type": "boolean"
+            },
+            "in": "query",
+            "name": "blacklist"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "",
+                "type": "object",
+                "properties": {
+                  "ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "required": [
+                  "ids"
+                ]
+              }
+            }
+          },
+          "description": ""
+        },
+        "tags": [
+          "Queue"
+        ],
+        "description": "Remove multiple items from queue by their ids"
+      }
+    },
+    "/queue/details": {
+      "get": {
+        "summary": "Get Queue Item Details",
+        "tags": [
+          "Queue"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "description": "",
+                  "minItems": 1,
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "languages": {
+                        "type": "array",
+                        "uniqueItems": true,
+                        "minItems": 1,
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "integer"
+                            },
+                            "name": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "name"
+                          ]
+                        }
+                      },
+                      "quality": {
+                        "$ref": "#/components/schemas/Quality"
+                      },
+                      "customFormats": {
+                        "type": "array",
+                        "uniqueItems": true,
+                        "minItems": 1,
+                        "items": {
+                          "$ref": "#/components/schemas/CustomFormat"
+                        }
+                      },
+                      "size": {
+                        "type": "number"
+                      },
+                      "title": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "sizeleft": {
+                        "type": "number"
+                      },
+                      "timeleft": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "estimatedCompletionTime": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "status": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "trackedDownloadStatus": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "trackedDownloadState": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "statusMessages": {
+                        "type": "array",
+                        "uniqueItems": true,
+                        "minItems": 1,
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "title": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "messages": {
+                              "type": "array",
+                              "items": {
+                                "type": "object"
+                              }
+                            }
+                          },
+                          "required": [
+                            "title"
+                          ]
+                        }
+                      },
+                      "errorMessage": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "downloadId": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "protocol": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "downloadClient": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "indexer": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "outputPath": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "id": {
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "languages",
+                      "quality",
+                      "customFormats",
+                      "size",
+                      "title",
+                      "sizeleft",
+                      "timeleft",
+                      "estimatedCompletionTime",
+                      "status",
+                      "trackedDownloadStatus",
+                      "trackedDownloadState",
+                      "statusMessages",
+                      "errorMessage",
+                      "downloadId",
+                      "protocol",
+                      "downloadClient",
+                      "indexer",
+                      "outputPath",
+                      "id"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid API Key"
+          }
+        },
+        "operationId": "get-queue-details",
+        "security": [
+          {
+            "X-API-Key": []
+          },
+          {
+            "apikey": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "boolean"
+            },
+            "in": "query",
+            "name": "includeMovie",
+            "description": "Include Movie object if linked"
+          }
+        ],
+        "description": "Get details of all items in queue"
+      }
+    },
+    "/queue/status": {
+      "get": {
+        "summary": "Get Queue Status",
+        "tags": [
+          "Queue"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "",
+                  "type": "object",
+                  "properties": {
+                    "totalCount": {
+                      "type": "integer"
+                    },
+                    "count": {
+                      "type": "integer"
+                    },
+                    "unknownCount": {
+                      "type": "integer"
+                    },
+                    "errors": {
+                      "type": "boolean"
+                    },
+                    "warnings": {
+                      "type": "boolean"
+                    },
+                    "unknownErrors": {
+                      "type": "boolean"
+                    },
+                    "unknownWarnings": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "totalCount",
+                    "count",
+                    "unknownCount",
+                    "errors",
+                    "warnings",
+                    "unknownErrors",
+                    "unknownWarnings"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid API Key"
+          }
+        },
+        "operationId": "get-queue-status",
+        "description": "Stats on items in queue",
+        "security": [
+          {
+            "X-API-Key": []
+          },
+          {
+            "apikey": []
+          }
+        ]
+      }
+    },
+    "/queue/grab/{id}": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "id",
+          "in": "path",
+          "required": true
+        }
+      ],
+      "post": {
+        "summary": "",
+        "operationId": "post-queue-grab-id",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Invalid API Key"
+          }
+        },
+        "security": [
+          {
+            "X-API-Key": []
+          },
+          {
+            "apikey": []
+          }
+        ],
+        "description": "Force grab pending queue item by Id",
+        "tags": [
+          "Queue"
+        ]
+      }
     }
   },
   "components": {
@@ -2250,6 +3752,9 @@
           "path": {
             "type": "string"
           },
+          "rootFolderPath": {
+            "type": "string"
+          },
           "qualityProfileId": {
             "type": "integer"
           },
@@ -2283,7 +3788,7 @@
             "type": "integer"
           },
           "titleSlug": {
-            "type": "integer"
+            "type": "string"
           },
           "certification": {
             "type": "string"
@@ -2370,7 +3875,7 @@
             "type": "integer"
           },
           "value": {
-            "type": "integer"
+            "type": "number"
           }
         },
         "xml": {
@@ -2428,6 +3933,969 @@
             }
           }
         }
+      },
+      "Indexer": {
+        "description": "",
+        "type": "object",
+        "properties": {
+          "enableRss": {
+            "type": "boolean"
+          },
+          "enableAutomaticSearch": {
+            "type": "boolean"
+          },
+          "enableInteractiveSearch": {
+            "type": "boolean"
+          },
+          "supportsRss": {
+            "type": "boolean"
+          },
+          "supportsSearch": {
+            "type": "boolean"
+          },
+          "protocol": {
+            "type": "string",
+            "minLength": 1
+          },
+          "priority": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 50
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProviderField"
+            }
+          },
+          "implementationName": {
+            "type": "string",
+            "minLength": 1
+          },
+          "implementation": {
+            "type": "string",
+            "minLength": 1
+          },
+          "configContract": {
+            "type": "string",
+            "minLength": 1
+          },
+          "infoLink": {
+            "type": "string",
+            "minLength": 1
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "id": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "enableRss",
+          "enableAutomaticSearch",
+          "enableInteractiveSearch",
+          "supportsRss",
+          "supportsSearch",
+          "protocol",
+          "priority",
+          "name",
+          "fields",
+          "implementationName",
+          "implementation",
+          "configContract",
+          "infoLink",
+          "tags",
+          "id"
+        ]
+      },
+      "DownloadClient": {
+        "description": "",
+        "type": "object",
+        "properties": {
+          "enable": {
+            "type": "boolean"
+          },
+          "protocol": {
+            "type": "string",
+            "minLength": 1
+          },
+          "priority": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 50
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProviderField"
+            }
+          },
+          "implementationName": {
+            "type": "string",
+            "minLength": 1
+          },
+          "implementation": {
+            "type": "string",
+            "minLength": 1
+          },
+          "configContract": {
+            "type": "string",
+            "minLength": 1
+          },
+          "infoLink": {
+            "type": "string",
+            "minLength": 1
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "id": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "enable",
+          "protocol",
+          "priority",
+          "name",
+          "fields",
+          "implementationName",
+          "implementation",
+          "configContract",
+          "infoLink",
+          "tags",
+          "id"
+        ]
+      },
+      "Notification": {
+        "description": "",
+        "type": "object",
+        "title": "",
+        "properties": {
+          "onGrab": {
+            "type": "boolean"
+          },
+          "onDownload": {
+            "type": "boolean"
+          },
+          "onUpgrade": {
+            "type": "boolean"
+          },
+          "onRename": {
+            "type": "boolean"
+          },
+          "onDelete": {
+            "type": "boolean"
+          },
+          "onHealthIssue": {
+            "type": "boolean"
+          },
+          "supportsOnGrab": {
+            "type": "boolean"
+          },
+          "supportsOnDownload": {
+            "type": "boolean"
+          },
+          "supportsOnUpgrade": {
+            "type": "boolean"
+          },
+          "supportsOnRename": {
+            "type": "boolean"
+          },
+          "supportsOnDelete": {
+            "type": "boolean"
+          },
+          "supportsOnHealthIssue": {
+            "type": "boolean"
+          },
+          "includeHealthWarnings": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProviderField"
+            }
+          },
+          "implementationName": {
+            "type": "string",
+            "minLength": 1
+          },
+          "implementation": {
+            "type": "string",
+            "minLength": 1
+          },
+          "configContract": {
+            "type": "string",
+            "minLength": 1
+          },
+          "infoLink": {
+            "type": "string",
+            "minLength": 1
+          },
+          "message": {
+            "type": "object",
+            "required": [
+              "message",
+              "type"
+            ],
+            "properties": {
+              "message": {
+                "type": "string",
+                "minLength": 1
+              },
+              "type": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "id": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "onGrab",
+          "onDownload",
+          "onUpgrade",
+          "onRename",
+          "onDelete",
+          "onHealthIssue",
+          "supportsOnGrab",
+          "supportsOnDownload",
+          "supportsOnUpgrade",
+          "supportsOnRename",
+          "supportsOnDelete",
+          "supportsOnHealthIssue",
+          "includeHealthWarnings",
+          "name",
+          "fields",
+          "implementationName",
+          "implementation",
+          "configContract",
+          "infoLink",
+          "message",
+          "tags",
+          "id"
+        ]
+      },
+      "Metadata": {
+        "description": "",
+        "type": "object",
+        "properties": {
+          "enable": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProviderField"
+            }
+          },
+          "implementationName": {
+            "type": "string",
+            "minLength": 1
+          },
+          "implementation": {
+            "type": "string",
+            "minLength": 1
+          },
+          "configContract": {
+            "type": "string",
+            "minLength": 1
+          },
+          "infoLink": {
+            "type": "string",
+            "minLength": 1
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "id": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "enable",
+          "name",
+          "fields",
+          "implementationName",
+          "implementation",
+          "configContract",
+          "infoLink",
+          "tags",
+          "id"
+        ]
+      },
+      "ImportList": {
+        "description": "",
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "enableAuto": {
+            "type": "boolean"
+          },
+          "shouldMonitor": {
+            "type": "boolean"
+          },
+          "rootFolderPath": {
+            "type": "string",
+            "minLength": 1
+          },
+          "qualityProfileId": {
+            "type": "number"
+          },
+          "searchOnAdd": {
+            "type": "boolean"
+          },
+          "minimumAvailability": {
+            "type": "string",
+            "minLength": 1
+          },
+          "listType": {
+            "type": "string",
+            "minLength": 1
+          },
+          "listOrder": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProviderField"
+            }
+          },
+          "implementationName": {
+            "type": "string",
+            "minLength": 1
+          },
+          "implementation": {
+            "type": "string",
+            "minLength": 1
+          },
+          "configContract": {
+            "type": "string",
+            "minLength": 1
+          },
+          "infoLink": {
+            "type": "string",
+            "minLength": 1
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "id": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "enabled",
+          "enableAuto",
+          "shouldMonitor",
+          "rootFolderPath",
+          "qualityProfileId",
+          "searchOnAdd",
+          "minimumAvailability",
+          "listType",
+          "listOrder",
+          "name",
+          "fields",
+          "implementationName",
+          "implementation",
+          "configContract",
+          "infoLink",
+          "tags",
+          "id"
+        ]
+      },
+      "ProviderField": {
+        "description": "",
+        "type": "object",
+        "properties": {
+          "order": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1
+          },
+          "helpText": {
+            "type": "string",
+            "minLength": 1
+          },
+          "value": {
+            "type": "string",
+            "minLength": 1
+          },
+          "type": {
+            "type": "string",
+            "minLength": 1
+          },
+          "advanced": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "order",
+          "name",
+          "label",
+          "helpText",
+          "value",
+          "type",
+          "advanced"
+        ]
+      },
+      "History": {
+        "description": "",
+        "type": "object",
+        "properties": {
+          "movieId": {
+            "type": "number"
+          },
+          "sourceTitle": {
+            "type": "string",
+            "minLength": 1
+          },
+          "languages": {
+            "type": "array",
+            "uniqueItems": true,
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "number"
+                },
+                "name": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "id",
+                "name"
+              ]
+            }
+          },
+          "quality": {
+            "$ref": "#/components/schemas/Quality"
+          },
+          "customFormats": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CustomFormat"
+            }
+          },
+          "qualityCutoffNotMet": {
+            "type": "boolean"
+          },
+          "date": {
+            "type": "string",
+            "minLength": 1
+          },
+          "downloadId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "eventType": {
+            "type": "string",
+            "minLength": 1
+          },
+          "data": {
+            "type": "object"
+          },
+          "id": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "movieId",
+          "sourceTitle",
+          "languages",
+          "quality",
+          "customFormats",
+          "qualityCutoffNotMet",
+          "date",
+          "downloadId",
+          "eventType",
+          "data",
+          "id"
+        ]
+      },
+      "CustomFormat": {
+        "description": "",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "includeCustomFormatWhenRenaming": {
+            "type": "boolean"
+          },
+          "specifications": {
+            "type": "array",
+            "uniqueItems": true,
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "implementation": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "implementationName": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "infoLink": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "negate": {
+                  "type": "boolean"
+                },
+                "required": {
+                  "type": "boolean"
+                },
+                "fields": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "minItems": 1,
+                  "items": {
+                    "$ref": "#/components/schemas/ProviderField"
+                  }
+                }
+              },
+              "required": [
+                "name",
+                "implementation",
+                "implementationName",
+                "infoLink",
+                "negate",
+                "required"
+              ]
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "includeCustomFormatWhenRenaming",
+          "specifications"
+        ]
+      },
+      "Quality": {
+        "description": "",
+        "type": "object",
+        "properties": {
+          "quality": {
+            "type": "object",
+            "required": [
+              "id",
+              "name",
+              "source",
+              "resolution",
+              "modifier"
+            ],
+            "properties": {
+              "id": {
+                "type": "integer"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "source": {
+                "type": "string",
+                "minLength": 1
+              },
+              "resolution": {
+                "type": "integer"
+              },
+              "modifier": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          },
+          "revision": {
+            "type": "object",
+            "required": [
+              "version",
+              "real",
+              "isRepack"
+            ],
+            "properties": {
+              "version": {
+                "type": "integer"
+              },
+              "real": {
+                "type": "integer"
+              },
+              "isRepack": {
+                "type": "boolean"
+              }
+            }
+          }
+        },
+        "required": [
+          "quality",
+          "revision"
+        ]
+      },
+      "QualityProfile": {
+        "description": "",
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "upgradeAllowed": {
+            "type": "boolean"
+          },
+          "cutoff": {
+            "type": "integer"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "minFormatScore": {
+            "type": "integer"
+          },
+          "cutoffFormatScore": {
+            "type": "integer"
+          },
+          "formatItems": {
+            "type": "array",
+            "uniqueItems": true,
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "properties": {
+                "format": {
+                  "type": "integer"
+                },
+                "name": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "score": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "format",
+                "name",
+                "score"
+              ]
+            }
+          },
+          "language": {
+            "type": "object",
+            "required": [
+              "id",
+              "name"
+            ],
+            "properties": {
+              "id": {
+                "type": "integer"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          },
+          "id": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "name",
+          "upgradeAllowed",
+          "cutoff",
+          "items",
+          "minFormatScore",
+          "cutoffFormatScore",
+          "formatItems",
+          "language",
+          "id"
+        ]
+      },
+      "Blacklist": {
+        "description": "",
+        "type": "object",
+        "properties": {
+          "movieId": {
+            "type": "number"
+          },
+          "sourceTitle": {
+            "type": "string",
+            "minLength": 1
+          },
+          "languages": {
+            "type": "array",
+            "uniqueItems": true,
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "number"
+                },
+                "name": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "id",
+                "name"
+              ]
+            }
+          },
+          "quality": {
+            "$ref": "#/components/schemas/Quality"
+          },
+          "customFormats": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CustomFormat"
+            }
+          },
+          "date": {
+            "type": "string",
+            "minLength": 1
+          },
+          "protocol": {
+            "type": "string",
+            "minLength": 1
+          },
+          "indexer": {
+            "type": "string",
+            "minLength": 1
+          },
+          "message": {
+            "type": "string",
+            "minLength": 1
+          },
+          "id": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "movieId",
+          "sourceTitle",
+          "languages",
+          "quality",
+          "customFormats",
+          "date",
+          "protocol",
+          "indexer",
+          "message",
+          "id"
+        ]
+      },
+      "MovieFile": {
+        "description": "",
+        "type": "object",
+        "title": "",
+        "properties": {
+          "movieId": {
+            "type": "integer"
+          },
+          "relativePath": {
+            "type": "string",
+            "minLength": 1
+          },
+          "path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "size": {
+            "type": "number"
+          },
+          "dateAdded": {
+            "type": "string",
+            "minLength": 1
+          },
+          "indexerFlags": {
+            "type": "integer"
+          },
+          "quality": {
+            "$ref": "#/components/schemas/Quality"
+          },
+          "mediaInfo": {
+            "type": "object",
+            "required": [
+              "audioAdditionalFeatures",
+              "audioBitrate",
+              "audioChannels",
+              "audioCodec",
+              "audioLanguages",
+              "audioStreamCount",
+              "videoBitDepth",
+              "videoBitrate",
+              "videoCodec",
+              "videoFps",
+              "resolution",
+              "runTime",
+              "scanType",
+              "subtitles"
+            ],
+            "properties": {
+              "audioAdditionalFeatures": {
+                "type": "string"
+              },
+              "audioBitrate": {
+                "type": "number"
+              },
+              "audioChannels": {
+                "type": "number"
+              },
+              "audioCodec": {
+                "type": "string",
+                "minLength": 1
+              },
+              "audioLanguages": {
+                "type": "string"
+              },
+              "audioStreamCount": {
+                "type": "number"
+              },
+              "videoBitDepth": {
+                "type": "number"
+              },
+              "videoBitrate": {
+                "type": "number"
+              },
+              "videoCodec": {
+                "type": "string",
+                "minLength": 1
+              },
+              "videoFps": {
+                "type": "number"
+              },
+              "resolution": {
+                "type": "string",
+                "minLength": 1
+              },
+              "runTime": {
+                "type": "string",
+                "minLength": 1
+              },
+              "scanType": {
+                "type": "string",
+                "minLength": 1
+              },
+              "subtitles": {
+                "type": "string"
+              }
+            }
+          },
+          "qualityCutoffNotMet": {
+            "type": "boolean"
+          },
+          "languages": {
+            "type": "array",
+            "uniqueItems": true,
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "number"
+                },
+                "name": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "id",
+                "name"
+              ]
+            }
+          },
+          "releaseGroup": {
+            "type": "string",
+            "minLength": 1
+          },
+          "id": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "movieId",
+          "relativePath",
+          "path",
+          "size",
+          "dateAdded",
+          "indexerFlags",
+          "quality",
+          "mediaInfo",
+          "qualityCutoffNotMet",
+          "languages",
+          "releaseGroup",
+          "id"
+        ]
       }
     },
     "securitySchemes": {
@@ -2436,12 +4904,56 @@
         "scheme": "basic",
         "description": "Used when not providing the key via URL"
       },
-      "api key": {
-        "name": "API Key",
+      "apikey": {
+        "name": "apikey",
         "type": "apiKey",
         "in": "query",
         "description": "Used when not providing the key via header"
       }
     }
-  }
+  },
+  "tags": [
+    {
+      "name": "Movie"
+    },
+    {
+      "name": "MovieFile"
+    },
+    {
+      "name": "History"
+    },
+    {
+      "name": "Blacklist"
+    },
+    {
+      "name": "Queue"
+    },
+    {
+      "name": "Indexer"
+    },
+    {
+      "name": "Download Client"
+    },
+    {
+      "name": "Import Lists"
+    },
+    {
+      "name": "Notification"
+    },
+    {
+      "name": "Tag"
+    },
+    {
+      "name": "Disk Space"
+    },
+    {
+      "name": "Settings"
+    },
+    {
+      "name": "Metadata"
+    },
+    {
+      "name": "System"
+    }
+  ]
 }

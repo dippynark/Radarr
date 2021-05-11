@@ -37,6 +37,8 @@ export const defaultState = {
     showTitle: false,
     showMonitored: true,
     showQualityProfile: true,
+    showCinemaRelease: false,
+    showReleaseDate: false,
     showSearchAction: false
   },
 
@@ -224,15 +226,27 @@ export const defaultState = {
       valueType: filterBuilderValueTypes.BOOL
     },
     {
+      name: 'isAvailable',
+      label: translate('ConsideredAvailable'),
+      type: filterBuilderTypes.EXACT,
+      valueType: filterBuilderValueTypes.BOOL
+    },
+    {
+      name: 'minimumAvailability',
+      label: translate('MinimumAvailability'),
+      type: filterBuilderTypes.EXACT,
+      valueType: filterBuilderValueTypes.MINIMUM_AVAILABILITY
+    },
+    {
       name: 'title',
       label: translate('Title'),
       type: filterBuilderTypes.STRING
     },
     {
       name: 'status',
-      label: translate('Status'),
+      label: translate('ReleaseStatus'),
       type: filterBuilderTypes.EXACT,
-      valueType: filterBuilderValueTypes.MOVIE_STATUS
+      valueType: filterBuilderValueTypes.RELEASE_STATUS
     },
     {
       name: 'studio',

@@ -1,6 +1,8 @@
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using FizzWare.NBuilder;
 using FluentAssertions;
 using Moq;
@@ -387,7 +389,7 @@ namespace NzbDrone.Core.Test.OrganizerTests.FileNameBuilderTests
             {
                 VideoCodec = "AVC",
                 AudioFormat = "DTS",
-                AudioChannels = 6,
+                AudioChannelsContainer = 6,
                 AudioLanguages = "English",
                 Subtitles = language,
                 SchemaRevision = 3
@@ -564,6 +566,24 @@ namespace NzbDrone.Core.Test.OrganizerTests.FileNameBuilderTests
                    .Should().Be("30 Rock - 30 Rock - S01E01 - Test");
         }
 
+        [TestCase("en-US")]
+        [TestCase("fr-FR")]
+        [TestCase("az")]
+        [TestCase("tr-TR")]
+        public void should_replace_all_tokens_for_different_cultures(string culture)
+        {
+            Thread.CurrentThread.CurrentCulture = new CultureInfo(culture);
+
+            _movie.TmdbId = 124578;
+            _movie.Year = 2020;
+            GivenMediaInfoModel();
+
+            _namingConfig.StandardMovieFormat = "{Movie CleanTitle} ({Release Year}) [{Quality Title}] [tmdb-{TmdbId}] [{MediaInfo AudioCodec}]";
+
+            Subject.BuildFileName(_movie, _movieFile)
+                   .Should().Be("South Park (2020) [HDTV-720p] [tmdb-124578] [DTS]");
+        }
+
         [Test]
         public void should_be_able_to_use_original_filename_only()
         {
@@ -737,7 +757,7 @@ namespace NzbDrone.Core.Test.OrganizerTests.FileNameBuilderTests
             {
                 VideoCodec = videoCodec,
                 AudioFormat = audioCodec,
-                AudioChannels = audioChannels,
+                AudioChannelsContainer = audioChannels,
                 AudioLanguages = audioLanguages,
                 Subtitles = subtitles,
                 VideoBitDepth = videoBitDepth,
